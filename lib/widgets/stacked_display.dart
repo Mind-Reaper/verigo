@@ -236,11 +236,17 @@ class StackedOrder extends StatelessWidget {
                       children: [
                         ImageIcon(AssetImage('assets/images/request.png')),
                         SizedBox(width: 15),
-                        Text(
-                          "Order ID-$id",
-                          style: Theme.of(context).textTheme.headline3.copyWith(
-                              fontSize: 20, fontWeight: FontWeight.w500),
-                        )
+                        FittedBox(
+                          child: Text(
+                            "Order ID-$id",
+                            style: Theme.of(context).textTheme.button.copyWith(
+                              color: Color(0xff414141),
+                               fontWeight: FontWeight.w500),
+                            overflow: TextOverflow.ellipsis,
+
+                          ),
+                        ),
+                        SizedBox(width: 50),
                       ],
                     ),
                   ),

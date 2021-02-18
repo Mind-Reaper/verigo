@@ -267,17 +267,22 @@ class PaymentDetail extends StatelessWidget {
         top: 24,
       ),
       child: Column(
+crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
             children: [
-              Text(
-                title,
-                style: Theme.of(context)
-                    .textTheme
-                    .headline3
-                    .copyWith(fontWeight: FontWeight.w500),
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline3
+                      .copyWith(fontWeight: FontWeight.w500),
+                ),
               ),
+              SizedBox(width: 20,),
               Text(
                 discount ? "- N$price" : "N$price",
                 style: Theme.of(context)
@@ -331,10 +336,12 @@ class PaymentMethod extends StatelessWidget {
                 SizedBox(
                   height: 10,
                 ),
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.headline3.copyWith(
-                      color: Theme.of(context).primaryColor, fontSize: 16),
+                FittedBox(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.headline3.copyWith(
+                        color: Theme.of(context).primaryColor, fontSize: 16),
+                  ),
                 )
               ],
             ),

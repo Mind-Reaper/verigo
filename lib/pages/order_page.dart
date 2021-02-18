@@ -51,46 +51,55 @@ class _OrderPageState extends State<OrderPage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 18, horizontal: 10),
-                    child: Text(
-                      "Pending",
-                      style: TextStyle(
-                        color: cupertinoTabBarIVValue == 0
-                            ? Colors.white
-                            : Theme.of(context).primaryColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    child: MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                      child: Text(
+                        "Pending",
+                        style: TextStyle(
+                          color: cupertinoTabBarIVValue == 0
+                              ? Colors.white
+                              : Theme.of(context).primaryColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 18, horizontal: 10),
-                    child: Text(
-                      "In Transit",
-                      style: TextStyle(
-                        color: cupertinoTabBarIVValue == 1
-                            ? Colors.white
-                            : Theme.of(context).primaryColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    child: MediaQuery(
+                      data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                      child: Text(
+                        "In Transit",
+                        style: TextStyle(
+                          color: cupertinoTabBarIVValue == 1
+                              ? Colors.white
+                              : Theme.of(context).primaryColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 18, horizontal: 10),
-                    child: Text(
-                      "Completed",
-                      style: TextStyle(
-                        color: cupertinoTabBarIVValue == 2
-                            ? Colors.white
-                            : Theme.of(context).primaryColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    child: MediaQuery(
+                      data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                      child: Text(
+                        "Completed",
+                        style: TextStyle(
+                          color: cupertinoTabBarIVValue == 2
+                              ? Colors.white
+                              : Theme.of(context).primaryColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                 ],
@@ -105,6 +114,7 @@ class _OrderPageState extends State<OrderPage> {
                 innerVerticalPadding: 0,
                 outerHorizontalPadding: 0,
                 borderRadius: BorderRadius.circular(15),
+
                 // curve: Curves.bounceOut,
                 // duration: Duration(seconds: 1),
 

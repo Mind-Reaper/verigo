@@ -2,6 +2,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:verigo/constants.dart';
+import 'package:verigo/main.dart';
 import 'package:verigo/screens/invite_screen.dart';
 import 'package:verigo/screens/wallet_screen.dart';
 import 'package:verigo/widgets/appbar.dart';
@@ -36,6 +37,7 @@ class _MorePageState extends State<MorePage> {
                 pushPage(context, WalletScreen());
               },
               child: FloatingContainer(
+
                 color: Theme.of(context).primaryColor,
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -61,22 +63,27 @@ class _MorePageState extends State<MorePage> {
                                       .copyWith(color: Colors.white),
                                 ),
                                 SizedBox(height: 5),
-                                Text(
-                                  "N60,000.75",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline2
-                                      .copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                FittedBox(
+                                  child: Text(
+                                    "N60,000.75",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .button
+                                        .copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
                                 ),
                               ]),
                         ],
                       ),
+                      SizedBox(width: 10,),
                       Icon(
+
                         Icons.arrow_forward_ios_rounded,
                         color: Colors.white,
+                        size: 15,
                       )
                     ]),
               ),
@@ -125,6 +132,13 @@ class _MorePageState extends State<MorePage> {
             child: RoundedButton(
               title: 'Logout',
               active: true,
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                    builder: (context) => SplashScreen()
+                ),
+                        (Route<dynamic> route) => false
+                );
+              },
 
             ),
           )
@@ -162,12 +176,14 @@ class MoreOption extends StatelessWidget {
                       size: 27,
                     ),
                     SizedBox(width: 20),
-                    Text(
-                      title,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headline3
-                          .copyWith(fontWeight: FontWeight.w500),
+                    FittedBox(
+                      child: Text(
+                        title,
+                        style: Theme.of(context)
+                            .textTheme
+                            .button
+                            .copyWith(fontWeight: FontWeight.w500, color: Color(0xff414141)),
+                      ),
                     )
                   ],
                 ),

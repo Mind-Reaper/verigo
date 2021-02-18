@@ -71,9 +71,13 @@ class CreditCard extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodyText1
                         // .copyWith(fontSize: 20)
                       ),
-                      Text(
-                        cardIssuer.toUpperCase(),
-                        // style: TextStyle(fontSize: 20),
+                      SizedBox(width: 10,),
+                      Flexible(
+                        child: Text(
+                          cardIssuer.toUpperCase(),
+                          overflow: TextOverflow.ellipsis,
+                          // style: TextStyle(fontSize: 20),
+                        ),
                       ),
                     ],
                   ),

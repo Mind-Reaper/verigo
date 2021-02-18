@@ -56,7 +56,7 @@ border: logName == selectedLog,
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal:16.0),
-                child: Row(
+                child: Wrap(
                   children: [
                     Image(
 
@@ -68,18 +68,22 @@ border: logName == selectedLog,
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          logName,
-                          style: Theme.of(context).textTheme.headline3.copyWith(
-                              fontSize: 20,fontWeight: FontWeight.w500
+                        FittedBox(
+                          child: Text(
+                            logName,
+                            style: Theme.of(context).textTheme.button.copyWith(
+                                fontWeight: FontWeight.w500, color: Color(0xff414141)
+                            ),
                           ),
                         ),
                         SizedBox(height: 5,),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        Wrap(
+
+                          // crossAxisAlignment: CrossAxisAlignment.start,
+                          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             Column(
+                              mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
@@ -107,6 +111,7 @@ border: logName == selectedLog,
                               ],
                             ),
                             Column(
+                              mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('Total Deliveries'),
@@ -115,6 +120,7 @@ border: logName == selectedLog,
                             ),
                             SizedBox(width: 15),
                             Column(
+                              mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('Distance'),

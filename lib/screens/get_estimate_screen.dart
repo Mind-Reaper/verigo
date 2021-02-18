@@ -217,14 +217,17 @@ class _GetEstimateScreenState extends State<GetEstimateScreen> {
                 color: Color(0xff414141),
                 radius: const Radius.circular(15),
                 child: Container(
-                  height: 50,
+
                   width: double.infinity,
                   child: Center(
-                    child: Text("N1500.00 - N2300.00",
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline2
-                            .copyWith(fontWeight: FontWeight.bold)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text("N1500.00 - N2300.00",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline2
+                              .copyWith(fontWeight: FontWeight.bold)),
+                    ),
                   ),
                 ),
               ),

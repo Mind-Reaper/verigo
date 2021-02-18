@@ -86,10 +86,12 @@ class _ServiceProvidersScreenState extends State<ServiceProvidersScreen> {
                     color: Theme.of(context).primaryColor,
                   )),
               SizedBox(width: 10),
-              Text(
-                'Buy additional protection & insurance',
-                style: TextStyle(
-                    color: insuranceEnabled ? Color(0xff414141) : Colors.grey),
+              Flexible(
+                child: Text(
+                  'Buy additional protection & insurance',
+                  style: TextStyle(
+                      color: insuranceEnabled ? Color(0xff414141) : Colors.grey),
+                ),
               ),
             ],
           ),

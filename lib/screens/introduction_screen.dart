@@ -35,19 +35,16 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
     return Material(
       child: Container(
           child: Center(
-        child: Stack(alignment: AlignmentDirectional.center, children: [
-          Expanded(
-              child: Container(
-            decoration: BoxDecoration(
-                image: DecorationImage(
-              colorFilter: ColorFilter.mode(Colors.black26, BlendMode.darken),
-              image: AssetImage(
-                'assets/images/container.jpg',
-              ),
-              fit: BoxFit.cover,
-            )),
+        child: Container(
+          decoration: BoxDecoration(
+          image: DecorationImage(
+        colorFilter: ColorFilter.mode(Colors.black26, BlendMode.darken),
+        image: AssetImage(
+          'assets/images/container.jpg',
+        ),
+        fit: BoxFit.cover,
           )),
-          Column(
+child:    Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -56,16 +53,18 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                   child: namedLogo(),
                 ),
                 Expanded(
-                  child: PageView.builder(
-                      physics: BouncingScrollPhysics(),
-                      // controller: pageController,
-                      itemCount: 3,
-                      onPageChanged: (page) {
-                        _currentPageNotifier.value = page;
-                      },
-                      itemBuilder: (context, page) {
-                        return pages[page];
-                      }),
+                  child: Container(
+                    child: PageView.builder(
+                        physics: BouncingScrollPhysics(),
+                        // controller: pageController,
+                        itemCount: 3,
+                        onPageChanged: (page) {
+                          _currentPageNotifier.value = page;
+                        },
+                        itemBuilder: (context, page) {
+                          return pages[page];
+                        }),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -113,8 +112,8 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                         ],
                       ),
                     ))
-              ])
-        ]),
+              ]),
+        ),
       )),
     );
   }
@@ -170,3 +169,71 @@ class IntroPage extends StatelessWidget {
     );
   }
 }
+
+// Column(
+//     crossAxisAlignment: CrossAxisAlignment.center,
+//     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//     children: [
+//       Padding(
+//         padding: EdgeInsets.only(top: 50, bottom: 40),
+//         child: namedLogo(),
+//       ),
+//       Container(
+//         child: PageView.builder(
+//             physics: BouncingScrollPhysics(),
+//             // controller: pageController,
+//             itemCount: 3,
+//             onPageChanged: (page) {
+//               _currentPageNotifier.value = page;
+//             },
+//             itemBuilder: (context, page) {
+//               return pages[page];
+//             }),
+//       ),
+//       Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: CirclePageIndicator(
+//           currentPageNotifier: _currentPageNotifier,
+//           itemCount: 3,
+//         ),
+//       ),
+//       Container(
+//           height: 120,
+//           width: double.infinity,
+//           color: Theme.of(context).primaryColor,
+//           child: Padding(
+//             padding: const EdgeInsets.all(12.0),
+//             child: Column(
+//               children: [
+//                 Text(
+//                   "Let's get started",
+//                   style: TextStyle(
+//                     color: Colors.white,
+//                     fontSize: 20,
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//                 SizedBox(height: 10),
+//                 Row(children: [
+//                   Expanded(
+//                       child: RoundedButton(
+//                           title: 'Sign In',
+//                           active: true,
+//                           inverse: true,
+//                           onPressed: () {
+//                             pushPage(context, LoginScreen());
+//                           })),
+//                   SizedBox(width: 20),
+//                   Expanded(
+//                       child: RoundedButton(
+//                           title: 'Sign Up',
+//                           active: true,
+//                           inverse: true,
+//                           onPressed: () {
+//                             pushPage(context, SignupScreen());
+//                           })),
+//                 ])
+//               ],
+//             ),
+//           ))
+//     ])

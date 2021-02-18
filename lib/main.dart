@@ -86,7 +86,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     Hive.openBox('app_data');
     // Show Splash Screen For Few Seconds
-    Timer(Duration(seconds: 3), () {
+    Timer(Duration(seconds: 2), () {
       Navigator.pushReplacement(
           context,
           PageRouteBuilder(
