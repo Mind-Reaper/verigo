@@ -4,17 +4,23 @@ import 'package:hive/hive.dart';
 class StateProvider extends ChangeNotifier {
   bool online = true;
   changeOnlineStatus(bool value) {
-    online = false;
+    online = value;
     notifyListeners();
   }
 
   PageController homePageController = PageController();
   int pageIndex = 0;
+  initiateHomePageController() {
+    homePageController = PageController();
+  }
+
+
   changePageIndex(int index) {
     pageIndex = index;
-    homePageController.animateToPage(index,
-        duration: Duration(milliseconds: 300), curve: Curves.fastOutSlowIn);
     notifyListeners();
+    // homePageController.animateToPage(index,
+    //     duration: Duration(milliseconds: 300), curve: Curves.fastOutSlowIn);
+
   }
 
   String expandedId = '000';
@@ -23,9 +29,28 @@ class StateProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  String selectedLogistic = 'selectedLogistic';
+  changeSelectedLogistic(String logName) {
+    selectedLogistic = logName;
+    notifyListeners();
+  }
+
   String selectedCard;
   changeSelectedCard(String id) {
     selectedCard = id;
     notifyListeners();
   }
+
+  String referralCode = 'VERIME2021';
+  changeReferralCode (code) {
+    referralCode = code;
+    notifyListeners();
+  }
+
+  String selectedPayment = 'E-Wallet';
+  changeSelectedPayment(value) {
+    selectedPayment = value;
+    notifyListeners();
+  }
+
 }

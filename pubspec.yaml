@@ -43,6 +43,12 @@ dependencies:
   hive: ^1.4.4+1
   path_provider: ^1.6.27
   page_view_indicators: ^1.4.1
+  pinput: ^1.0.0
+  country_state_city_picker: ^1.2.7
+  intl: ^0.16.1
+  jiffy: ^3.0.1
+  cupertino_tabbar: ^1.1.1
+  timer_count_down: ^1.0.4+1
 
 dev_dependencies:
   flutter_test:

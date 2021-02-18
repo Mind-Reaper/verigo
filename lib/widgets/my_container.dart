@@ -6,12 +6,14 @@ class FloatingContainer extends StatelessWidget {
   final double width;
   final Color color;
   final bool border;
+  final bool padding;
 
   const FloatingContainer(
       {Key key,
       this.height,
       this.width,
       this.color: Colors.white,
+        this.padding: true,
       this.child,
       this.border: false})
       : super(key: key);
@@ -38,7 +40,7 @@ class FloatingContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         color: color,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: padding?  const EdgeInsets.all(16.0) : EdgeInsets.zero ,
           child: child,
         ),
       ),

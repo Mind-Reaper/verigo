@@ -75,7 +75,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                   ),
                 ),
                 Container(
-                    height: 100,
+                    height: 120,
                     width: double.infinity,
                     color: Theme.of(context).primaryColor,
                     child: Padding(

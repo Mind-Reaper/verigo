@@ -30,7 +30,9 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: appBar(context),
+        appBar: appBar(context,
+        brightness: Brightness.light
+        ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           child: ListView(

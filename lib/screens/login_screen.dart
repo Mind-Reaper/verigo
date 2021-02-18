@@ -1,9 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:verigo/screens/reset_screen.dart';
+import 'package:verigo/screens/verification_screen.dart';
 import 'package:verigo/widgets/buttons.dart';
 import 'package:verigo/widgets/my_container.dart';
 import '../constants.dart';
+import 'home_screen.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -18,6 +21,9 @@ class _LoginScreenState extends State<LoginScreen> {
   String password;
   IconData passIcon = Icons.visibility;
   bool obscureText = true;
+  String code = '0000';
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -95,14 +101,36 @@ class _LoginScreenState extends State<LoginScreen> {
                 RoundedButton(
                     title: 'Sign In',
                     active: true,
-                    //  emailError == null && passwordError == null,
+                     // emailError == null && passwordError == null,
                     onPressed: () {
-                      // pushPage(context, FormScreen());
+                      pushPage(context, VerificationScreen(
+                        header: 'Verification',
+                        info: 'Please verify the 4-digits code sent to your mobile number',
+
+
+
+                        onSubmitted: (value) {
+    if (value.length == 4) {
+        if (value == code) {
+     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+       builder: (context) => HomeScreen()
+     ),
+             (Route<dynamic> route) => false
+     );
+        }
+      }
+                        },
+                      ));
                     }),
                 SizedBox(height: 20),
-                Center(
-                  child: Text('Forgot Password?',
-                      style: TextStyle(color: Color(0xff414141), fontSize: 18)),
+                GestureDetector(
+                  onTap: () {
+                    pushPage(context, ResetScreen());
+                  },
+                  child: Center(
+                    child: Text('Forgot Password?',
+                        style: TextStyle(color: Color(0xff414141), fontSize: 18)),
+                  ),
                 ),
                 SizedBox(height: 20),
                 Row(
