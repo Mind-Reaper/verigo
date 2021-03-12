@@ -15,6 +15,12 @@ import 'package:verigo/widgets/my_container.dart';
 import '../constants.dart';
 
 class DeliveryRequestScreen extends StatefulWidget {
+
+  final String dropoff;
+  final String pickup;
+
+  const DeliveryRequestScreen({Key key, this.dropoff, this.pickup}) : super(key: key);
+
   @override
   _DeliveryRequestScreenState createState() => _DeliveryRequestScreenState();
 }
@@ -22,7 +28,7 @@ class DeliveryRequestScreen extends StatefulWidget {
 class _DeliveryRequestScreenState extends State<DeliveryRequestScreen> {
   TextEditingController pickupController = TextEditingController();
   TextEditingController dropoffController = TextEditingController();
-  DateTime deliveryDate;
+  DateTime pickupDate;
   TimeOfDay pickupTime;
   DateTime now = DateTime.now();
 
@@ -31,8 +37,8 @@ class _DeliveryRequestScreenState extends State<DeliveryRequestScreen> {
     // TODO: implement initState
     super.initState();
     setState(() {
-      pickupController.text = "9092, parlay street, Lagos State";
-      dropoffController.text = "12, Dolphin estate, Lagos State";
+      pickupController.text = widget.pickup;
+      dropoffController.text = widget.dropoff;
     });
   }
 
@@ -76,6 +82,8 @@ body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         child: TextField(
           inputFormatters: [PhoneInputFormatter()],
+          keyboardType: TextInputType.phone,
+
           decoration: fieldDecoration.copyWith(hintText: "Sender's Mobile Number", fillColor: Colors.white),
 
         ),
@@ -86,7 +94,7 @@ body: ListView(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(deliveryDate != null ? Jiffy(deliveryDate).format("MMMM d yyy")  : 'Change Date',
+              Text(pickupDate != null ? Jiffy(pickupDate).format("MMMM d yyy, hh:mm a")  : 'Pickup Date (Optional)',
                 style:
                 TextStyle(
                     fontSize: 20,
@@ -101,14 +109,14 @@ body: ListView(
                       color: Colors.white,
                       height: 300,
                       child: CupertinoDatePicker(
-                        mode: CupertinoDatePickerMode.date,
+
                         minimumDate: DateTime.now().add(Duration(hours: 2)),
                         maximumDate: DateTime.now().add(Duration(days: 7)),
                         initialDateTime: DateTime.now().add(Duration(hours: 2)),
                         onDateTimeChanged: (dateTime) {
 
                           setState(() {
-                            deliveryDate= dateTime;
+                            pickupDate= dateTime;
 
                           });
                         },
@@ -126,50 +134,7 @@ body: ListView(
           ),
         ),
       ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-        child: FloatingContainer(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(pickupTime != null ? Jiffy(DateTime(now.year, now.month, now.day, pickupTime.hour, pickupTime.minute, now.second)).format("h:mm a")  : 'Change Time',
-                style:
-                TextStyle(
-                  fontSize: 20,
 
-                )
-                ,),
-              InkWell(
-                // splashColor: Theme.of(context).primaryColor,
-                onTap: () {
-                  showCupertinoModalPopup(context: context, builder: (context) {
-                    return Container(
-                        color: Colors.white,
-                        height: 300,
-                        child: CupertinoDatePicker(
-                          mode: CupertinoDatePickerMode.time,
-
-                          onDateTimeChanged: (dateTime) {
-
-                            setState(() {
-                              pickupTime= TimeOfDay.fromDateTime(DateTime(now.year, now.month, now.day, dateTime.hour, dateTime.minute, now.second));
-
-                            });
-                          },
-                        )
-                    );
-                  }
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey, size: 20,),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal:16.0, vertical: 16),
         child: DottedBorder(
@@ -203,6 +168,7 @@ body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         child: TextField(
           inputFormatters: [PhoneInputFormatter()],
+          keyboardType: TextInputType.phone,
 
           decoration: fieldDecoration.copyWith(hintText: "Receiver's Mobile Number", fillColor: Colors.white),
 

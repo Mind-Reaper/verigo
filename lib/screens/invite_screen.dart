@@ -43,25 +43,33 @@ class InviteScreen extends StatelessWidget {
               child: Container(
                 child: Stack(
                   children: [
-                    TextField(
-                      controller: textController,
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20
-                      ),
+                    Container(
+height: 50,
+                      width: double.infinity,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'VERIME2021',
+                            style: TextStyle(
+                                color: Theme.of(context).primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20
+                            ),
 
-                      enabled: false,
-                      decoration: fieldDecoration.copyWith(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 32, vertical: 18),
-                        fillColor: Colors.white,
-                        hintText: 'Enter Voucher Code',
+                          ),
+                        ),
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(25)
                       ),
                     ),
+
                     Align(
                       alignment: Alignment.centerRight,
                       child: Container(
-                        height: 44,
+height: 50,
                         width: 80,
                         decoration: BoxDecoration(
                             color: Theme.of(context).primaryColor,

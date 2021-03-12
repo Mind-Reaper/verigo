@@ -1,8 +1,11 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:verigo/constants.dart';
+import 'package:verigo/models/card_model.dart';
+import 'package:verigo/providers/card_provider.dart';
 import 'package:verigo/providers/state_provider.dart';
 import 'package:verigo/screens/after_payment_screen.dart';
 
@@ -11,6 +14,7 @@ import 'package:verigo/screens/wallet_screen.dart';
 import 'package:verigo/widgets/appbar.dart';
 import 'package:verigo/widgets/buttons.dart';
 import 'package:verigo/widgets/card.dart';
+import 'package:verigo/widgets/custom_page_view.dart';
 import 'package:verigo/widgets/my_container.dart';
 import 'package:verigo/widgets/wallet_card.dart';
 
@@ -23,11 +27,19 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   PageController pageController;
+  double pageHeight ;
 
   switchPage(int index) {
     setState(() {
       pageController.animateToPage(index,
           duration: Duration(milliseconds: 300), curve: Curves.fastOutSlowIn);
+    });
+  }
+
+  setPageHeight(double height) {
+    if(mounted )
+    setState(() {
+      pageHeight = height;
     });
   }
 
@@ -38,6 +50,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     pageController = PageController();
     var stateProvider = Provider.of<StateProvider>(context, listen: false);
     stateProvider.changeSelectedPayment('E-Wallet');
+
   }
 
   @override
@@ -57,56 +70,70 @@ class _PaymentScreenState extends State<PaymentScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 48),
-            child: GridView(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 20,
-                mainAxisSpacing: 20,
-                childAspectRatio: 115 / 80,
-              ),
-              shrinkWrap: true,
+            child: Column(
+
               children: [
-                PaymentMethod(
-                  icon: Image(
-                    image: AssetImage('assets/images/logo.png'),
-                    height: 25,
-                  ),
-                  title: 'E-Wallet',
-                  onPressed: () {
-                    switchPage(0);
-                  },
+                Row(
+                  children: [
+                    Expanded(
+                      child: PaymentMethod(
+                        icon: Image(
+                          image: AssetImage('assets/images/logo.png'),
+                          height: 25,
+                        ),
+                        title: 'E-Wallet',
+                        onPressed: () {
+                          switchPage(0);
+                        },
+                      ),
+                    ),
+                    SizedBox(width: 20,),
+                    Expanded(
+                      child: PaymentMethod(
+                        icon: Icon(
+                          FontAwesomeIcons.creditCard,
+                          size: 25,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        title: 'Card',
+                        onPressed: () {
+                          switchPage(1);
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                PaymentMethod(
-                  icon: Icon(
-                    FontAwesomeIcons.creditCard,
-                    size: 25,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  title: 'Card',
-                  onPressed: () {
-                    switchPage(1);
-                  },
+SizedBox(height: 20,),
+                Row(
+                  children: [
+                    Expanded(
+                      child: PaymentMethod(
+                        icon: Image(
+                          image: AssetImage('assets/images/bank.png'),
+                          height: 25,
+                        ),
+                        title: 'Bank Transfer',
+                        onPressed: () {
+                          switchPage(2);
+                        },
+                      ),
+                    ),
+                    SizedBox(width: 20,),
+                    Expanded(
+                      child: PaymentMethod(
+                        icon: Image(
+                          image: AssetImage('assets/images/naira.png'),
+                          height: 25,
+                        ),
+                        title: 'Pay On Delivery',
+                        onPressed: () {
+                          switchPage(3);
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                PaymentMethod(
-                  icon: Image(
-                    image: AssetImage('assets/images/bank.png'),
-                    height: 25,
-                  ),
-                  title: 'Bank Transfer',
-                  onPressed: () {
-                    switchPage(2);
-                  },
-                ),
-                PaymentMethod(
-                  icon: Image(
-                    image: AssetImage('assets/images/naira.png'),
-                    height: 25,
-                  ),
-                  title: 'Pay On Delivery',
-                  onPressed: () {
-                    switchPage(3);
-                  },
-                ),
+
               ],
             ),
           ),
@@ -114,15 +141,24 @@ class _PaymentScreenState extends State<PaymentScreen> {
             height: 20,
           ),
           Container(
-            constraints: BoxConstraints.loose(Size(double.infinity, 250)),
-            child: PageView(
-              controller: pageController,
+            height: pageHeight,
+            child: ExpandablePageView(
+              pageController: pageController,
+
               physics: NeverScrollableScrollPhysics(),
               children: [
-                PaymentOne(),
-                PaymentTwo(),
-                PaymentThree(),
-                PaymentThree(),
+                SizeReportingWidget(child: PaymentOne(), onSizeChange: (size) {
+                  setPageHeight(size.height);
+                },),
+                SizeReportingWidget(child: PaymentTwo(), onSizeChange: (size) {
+                  setPageHeight(size.height);
+                },),
+                SizeReportingWidget(child: PaymentThree(), onSizeChange: (size) {
+                  setPageHeight(size.height);
+                },),
+                SizeReportingWidget(child: PaymentThree(), onSizeChange: (size) {
+                  setPageHeight(size.height);
+                },),
               ],
             ),
           ),
@@ -132,12 +168,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
               child: Column(
                 children: [
                   PaymentDetail(
-                    title: 'Service Fee + Vat',
+                    title: 'Service Fee',
                     price: '4000',
                   ),
                   PaymentDetail(
-                    title: 'Insurance',
-                    price: '50',
+                    title: 'Verisure (Premium Protection)',
+                    price: '500',
                   ),
                   PaymentDetail(
                     title: 'Discount',
@@ -145,8 +181,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     discount: true,
                   ),
                   PaymentDetail(
-                    title: 'Home Delivery',
-                    price: '500',
+                    title: 'VAT (7.5%)',
+                    price: '1000',
                   ),
                   Padding(
                     padding: const EdgeInsets.only(
@@ -230,14 +266,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             ? 'Pay'
                             : 'Done',
                     onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => AfterPaymentScreen(
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                      pushPage(context,
+                      AfterPaymentScreen(
                                 paymentComplete:  paymentMethod == 'E-Wallet' || paymentMethod == 'Card'? true: false,
                                 trackingId: '47498285837',
-                              )),
-                          (Route<dynamic> route) => false);
+                              ));
                     },
                   ),
                 )
@@ -324,7 +358,7 @@ class PaymentMethod extends StatelessWidget {
         onPressed();
       },
       child: FloatingContainer(
-        padding: false,
+
         border: title == selectedPayment,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -356,23 +390,72 @@ class PaymentOne extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      physics: NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
       children: [
         SizedBox(
           height: 20,
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: WalletCard(),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 10),
-          child: DottedButton(
-            title: 'Fund E-Wallet',
-            onPressed: () {
-              pushPage(context, WalletScreen(walletOption: false));
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+          child: GestureDetector(
+            onTap: () {
+              pushPage(context, WalletScreen(walletOption: false,));
             },
+            child: FloatingContainer(
+
+
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                            height: 70,
+                            width: 50,
+                            decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    image: AssetImage(
+                                        'assets/images/logo.png')))),
+                        SizedBox(width: 20),
+                        Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Wallet Balance',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline3
+                                    .copyWith(color: Theme.of(context).primaryColor),
+                              ),
+                              SizedBox(height: 5),
+                              FittedBox(
+                                child: Text(
+                                  "N60,000.75",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .button
+                                      .copyWith(
+                                    color: Theme.of(context).primaryColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ]),
+                      ],
+                    ),
+                    SizedBox(width: 10,),
+                    Icon(
+
+                      Icons.add,
+                      color: Theme.of(context).primaryColor,
+                      size: 30,
+                    )
+                  ]),
+            ),
           ),
-        )
+        ),
+
       ],
     );
   }
@@ -381,28 +464,30 @@ class PaymentOne extends StatelessWidget {
 class PaymentTwo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ListView(children: [
+    var cardModel = Provider.of<CreditCardProvider>(context);
+    return ListView(
+      shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        children: [
       SizedBox(
         height: 20,
       ),
-      CreditCard(
-        cardHolder: 'Daniel Onadipe',
-        cardId: '001',
-        cardIssuer: 'mastercard',
-        cardNumber: '5603584434936309',
-      ),
-      CreditCard(
-        cardHolder: 'Lanre Ogundipe',
-        cardId: '002',
-        cardIssuer: 'visa',
-        cardNumber: '6846456348672085',
-      ),
-      CreditCard(
-        cardHolder: 'Kore Fadaini',
-        cardId: '003',
-        cardIssuer: 'visa',
-        cardNumber: '6838592368394392',
-      ),
+      ListView.builder(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: cardModel.creditCardList.length,
+          itemBuilder: (context, index) {
+            UserCreditCard card = cardModel.creditCardList[index];
+            return CreditCard(
+              cardHolder: card.cardHolder,
+              cardIssuer: card.cardIssuer,
+              cardNumber: card.cardNumber,
+              cvv: card.cvv,
+              expiryDate: card.expiryDate,
+              index: index,
+
+            );
+          }),
       SizedBox(height: 15),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 10),
@@ -421,12 +506,14 @@ class PaymentThree extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
       children: [
         SizedBox(
           height: 20,
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
           child: FloatingContainer(
             child: Column(
               children: [
@@ -455,3 +542,5 @@ class PaymentThree extends StatelessWidget {
     );
   }
 }
+
+

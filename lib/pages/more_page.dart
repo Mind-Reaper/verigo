@@ -1,8 +1,10 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:verigo/constants.dart';
 import 'package:verigo/main.dart';
+import 'package:verigo/providers/state_provider.dart';
 import 'package:verigo/screens/invite_screen.dart';
 import 'package:verigo/screens/wallet_screen.dart';
 import 'package:verigo/widgets/appbar.dart';
@@ -17,6 +19,7 @@ class MorePage extends StatefulWidget {
 class _MorePageState extends State<MorePage> {
   @override
   Widget build(BuildContext context) {
+    var stateProvider = Provider.of<StateProvider>(context);
     return Scaffold(
       backgroundColor: Color(0xfff6f6f6),
       appBar: appBar(context,
@@ -138,6 +141,7 @@ class _MorePageState extends State<MorePage> {
                 ),
                         (Route<dynamic> route) => false
                 );
+                stateProvider.changePageIndex(0);
               },
 
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:verigo/providers/card_provider.dart';
 import 'package:verigo/providers/state_provider.dart';
 import 'package:verigo/screens/new_card_screen.dart';
 import 'package:verigo/widgets/my_container.dart';
@@ -11,28 +12,31 @@ import 'expanded_section.dart';
 class CreditCard extends StatelessWidget {
   final String cardIssuer;
   final String cardNumber;
-  final String cardId;
+  final String expiryDate;
   final String cardHolder;
+  final String cvv;
+  final int index;
 
   const CreditCard(
-      {Key key, this.cardIssuer, this.cardNumber, this.cardId, this.cardHolder})
+      {Key key, this.cardIssuer, this.cardNumber, this.cardHolder, this.expiryDate, this.cvv, this.index})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     var stateProvider = Provider.of<StateProvider>(context);
-    bool expanded = stateProvider.expandedId == cardId;
-    bool selected = stateProvider.selectedCard == cardId;
+    var cardModel = Provider.of<CreditCardProvider>(context);
+    bool expanded = stateProvider.expandedNumber == cardNumber;
+    bool selected = stateProvider.selectedCard == cardNumber;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
-          stateProvider.changeSelectedCard(cardId);
+          stateProvider.changeSelectedCard(cardNumber);
           if (expanded) {
-            stateProvider.changeExpandedId('000');
+            stateProvider.changeExpandedNumber('');
           } else {
-            stateProvider.changeExpandedId(cardId);
+            stateProvider.changeExpandedNumber(cardNumber);
           }
         },
         child: FloatingContainer(
@@ -74,7 +78,7 @@ class CreditCard extends StatelessWidget {
                       SizedBox(width: 10,),
                       Flexible(
                         child: Text(
-                          cardIssuer.toUpperCase(),
+                       cardIssuer != null  ? cardIssuer.toUpperCase(): '',
                           overflow: TextOverflow.ellipsis,
                           // style: TextStyle(fontSize: 20),
                         ),
@@ -89,7 +93,13 @@ class CreditCard extends StatelessWidget {
                           title: 'Edit',
                           active: true,
                           onPressed: () {
-                            pushPage(context, NewCardScreen());
+                            pushPage(context, NewCardScreen(
+cardNumber: cardNumber,
+                              cardHolder: cardHolder,
+                              expiryDate: expiryDate,
+                              index: index,
+                              cardIssuer: cardIssuer,
+                            ));
                           },
                         ),
                       ),
@@ -98,7 +108,9 @@ class CreditCard extends StatelessWidget {
                         child: RoundedButton(
                           title: 'Delete',
                           active: true,
-                          onPressed: () {},
+                          onPressed: () {
+                            cardModel.deleteItem(index);
+                          },
                         ),
                       ),
                     ],

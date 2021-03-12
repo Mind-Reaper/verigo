@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "410870618014",
+    "project_id": "verigo-e65a8",
+    "storage_bucket": "verigo-e65a8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:410870618014:android:ce3c381a23d4da86d9e88f",
+        "android_client_info": {
+          "package_name": "com.example.verigo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "410870618014-mribsb2qlhr87m8hqmcso4b0pq1grjnq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHgHIWVu8uGgoDPWCdKcguLvht6TTzSKc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "410870618014-mribsb2qlhr87m8hqmcso4b0pq1grjnq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "410870618014-pfncpsl7d0skgbfdoii5pi29l707k889.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.verigo"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

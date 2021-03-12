@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
+import 'package:provider/provider.dart';
+import 'package:verigo/providers/user_provider.dart';
 import 'package:verigo/screens/change_password_screen.dart';
 import 'package:verigo/widgets/buttons.dart';
 
@@ -16,8 +18,10 @@ class _ProfilePageState extends State<ProfilePage> {
   bool editNumber = false;
   bool editName = false;
   bool editEmail = false;
+  bool editSurname = false;
   FocusNode numberFocusNode = FocusNode();
-  TextEditingController fullnameController = TextEditingController();
+  TextEditingController firstnameController = TextEditingController();
+  TextEditingController lastnameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController mobileController = TextEditingController();
 
@@ -25,11 +29,12 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    var userProvider = Provider.of<UserProvider>(context, listen: false);
         setState(() {
           mobileController.text = '+2348145350249';
-          emailController.text = 'Onadipedaniel@gmail.com';
-          fullnameController.text = 'Daniel Onadipe';
+          emailController.text = userProvider.email;
+          firstnameController.text = userProvider.name;
+          lastnameController.text = userProvider.surname;
         });
 
 }
@@ -113,22 +118,23 @@ class _ProfilePageState extends State<ProfilePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: ListView(
                   children: [
-                    Text('Full Name'),
+                    Text('Name'),
                     SizedBox(height: 10),
                     Row(
                       children: [
                         Expanded(
                           child: TextField(
                             enabled: editName,
-                            controller: fullnameController,
+                            controller: firstnameController,
                             // onChanged: (value) {
                             //   setState(() {
                             //     firstname = value;
                             //   });
                             // },
+                            style: TextStyle(color: editName? Color(0xff414141): Colors.grey),
                             decoration: fieldDecoration.copyWith(
                                 fillColor: Colors.white,
-                                hintText: 'Enter full name'),
+                                hintText: 'Enter first name'),
                           ),
                         ),
                         IconButton(
@@ -148,38 +154,63 @@ class _ProfilePageState extends State<ProfilePage> {
                       ],
                     ),
                     SizedBox(height: 20),
+                    Text('Surname'),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            enabled: editSurname,
+                            controller: lastnameController,
+                            // onChanged: (value) {
+                            //   setState(() {
+                            //     firstname = value;
+                            //   });
+                            // },
+                            style: TextStyle(color: editSurname? Color(0xff414141): Colors.grey),
+                            decoration: fieldDecoration.copyWith(
+                                fillColor: Colors.white,
+                                hintText: 'Enter last name'),
+                          ),
+                        ),
+                        IconButton(
+                            icon: Icon(
+                                !editSurname ? Icons.edit_outlined : Icons.done,
+                                color: Colors.grey),
+                            onPressed: () {
+                              setState(() {
+                                if(editSurname) {
+                                  editSurname = false;
+                                } else {
+                                  editSurname = true;
+
+                                }
+                              });
+                            })
+                      ],
+                    ),
+                    SizedBox(height: 20),
                     Text('Email Address'),
                     SizedBox(height: 10),
                     Row(
                       children: [
                         Expanded(
                           child: TextField(
-                            enabled: editEmail,
+                            enabled: false,
                             controller: emailController,
                             // onChanged: (value) {
                             //   setState(() {
                             //     lastname = value;
                             //   });
                             // },
+                            style: TextStyle(color:  Colors.grey),
                             decoration: fieldDecoration.copyWith(
+
                                 fillColor: Colors.white,
                                 hintText: 'Enter email address'),
                           ),
                         ),
-                        IconButton(
-                            icon: Icon(
-                                !editEmail ? Icons.edit_outlined : Icons.done,
-                                color: Colors.grey),
-                            onPressed: () {
-                              setState(() {
-                                if(editEmail) {
-                                  editEmail = false;
-                                } else {
-                                  editEmail = true;
 
-                                }
-                              });
-                            })
                       ],
                     ),
                     SizedBox(height: 20),
@@ -192,6 +223,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             enabled: editNumber,
                             controller: mobileController,
                             focusNode: numberFocusNode,
+                            style: TextStyle(color: editNumber? Color(0xff414141): Colors.grey),
                             inputFormatters: [PhoneInputFormatter()],
                             keyboardType: TextInputType.phone,
                             // onTap: () {

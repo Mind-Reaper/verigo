@@ -20,7 +20,8 @@ class FloatingContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
       height: height,
       width: width,
       decoration: BoxDecoration(

@@ -1,11 +1,17 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:verigo/providers/authentication_provider.dart';
+import 'package:verigo/providers/user_provider.dart';
+import 'package:verigo/screens/verification_screen.dart';
 import 'package:verigo/widgets/appbar.dart';
 import 'package:verigo/widgets/buttons.dart';
 
 import '../constants.dart';
+import 'home_screen.dart';
 import 'login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -14,18 +20,191 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  String email;
+
+  TextEditingController firstname = TextEditingController();
+  TextEditingController lastname = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController phoneNumber = TextEditingController();
+  TextEditingController password = TextEditingController();
+  TextEditingController confirmPassword = TextEditingController();
+
+
+
+
+
+
   String emailError;
-  String firstname;
+
   String firstnameError;
+
+  String lastnameError;
   String passwordError;
-  String password;
+
   IconData passIcon = Icons.visibility;
   String confirmPasswordError;
-  String confirmPassword;
+
   bool obscureText = true;
-  String phoneNumber;
+
   String phoneError;
+  String code = '0000';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    firstname.addListener(() {
+      setState(() {
+        if (firstname.text
+            .trim()
+            .length < 3 || firstname.text
+            .trim()
+            .length > 20) {
+          firstnameError = 'Name is too short or too long';
+        } else {
+          firstnameError = null;
+        }
+      });
+      activateButton();
+    });
+    lastname.addListener(() {
+      setState(() {
+        if (lastname.text
+            .trim()
+            .length < 3 || lastname.text
+            .trim()
+            .length > 20) {
+          lastnameError = 'Name is too short or too long';
+        } else {
+          lastnameError = null;
+        }
+      });
+      activateButton();
+    });
+    email.addListener(() {
+      setState(() {
+        if (!RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+            .hasMatch(email.text)) {
+          emailError = 'Invalid email address';
+        } else {
+          emailError = null;
+        }
+      });
+      activateButton();
+
+    });
+    phoneNumber.addListener(() {
+      setState(() {
+        print(phoneNumber.text.replaceAll(" ", ''));
+        if (phoneNumber.text
+            .trim()
+            .length < 7 || phoneNumber.text
+            .trim()
+            .length > 20) {
+          phoneError = 'Mobile number is too short or too long';
+        } else {
+          phoneError = null;
+        }
+      });
+      activateButton();
+    });
+    password.addListener(() {
+      setState(() {
+        if (password.text
+            .trim()
+            .length < 8  ) {
+          passwordError = 'Password is too short or too long';
+        } else {
+          passwordError = null;
+        }
+      });
+      activateButton();
+    });
+    confirmPassword.addListener(() {
+      setState(() {
+        if (confirmPassword.text
+            .trim()
+            != password.text.trim() ) {
+          confirmPasswordError = "Doesn't match above password";
+        } else {
+          confirmPasswordError = null;
+        }
+      });
+      activateButton();
+    });
+  }
+
+  bool buttonActive = false;
+
+  activateButton() {
+    if(firstnameError == null && lastnameError== null && emailError == null && phoneError == null && passwordError == null
+    && confirmPasswordError == null
+    ) {
+      setState(() {
+        buttonActive = true;
+      });
+    } else {
+      setState(() {
+        buttonActive = false;
+      });
+    }
+
+  }
+
+  signUp() async {
+    var authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+    var userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    await authProvider.createUserWithEmail(
+      name: firstname.text,
+          surname: lastname.text,
+      email: email.text,
+      phoneNumber: phoneNumber.text.replaceAll(' ', ''),
+      password: password.text,
+    ).then((value)   {
+      if(value) {
+        pushPage(context, VerificationScreen(
+          header: 'Verification',
+          info:  'Please verify the 4-digits code sent to your mobile number',
+          onSubmitted: (code) async {
+            if(code.length ==4 ) {
+            await  authProvider.verifyPhoneNumber(otp: code).then((value) async {
+              if(value) {
+                await authProvider.tokenAuth(email.text, password.text).then((value) async {
+                  if(value.length > 5) {
+                    await authProvider.getCurrentUser().then((value) {
+                      if(value != null) {
+                        userProvider.setUser(value);
+                        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                            builder: (context) => HomeScreen()
+                        ),
+                                (Route<dynamic> route) => false
+                        );
+                        EasyLoading.dismiss();
+                      } else {
+                        EasyLoading.showInfo("Couldn't Sign In Automatically, Go to Sign In page and log in to your account", duration: Duration(seconds: 3));
+                        Navigator.pop(context);
+                      }
+                    });
+                  } else {
+                    EasyLoading.showInfo("Couldn't Sign In Automatically, Go to Sign In page and log in to your account", duration: Duration(seconds: 3));
+                    Navigator.pop(context);
+                  }
+                });
+              } else {
+                EasyLoading.showError('Wrong OTP Code');
+              }
+            });
+            } else {
+              EasyLoading.showToast('Invalid OTP');
+            }
+          },
+
+        ));
+      }
+    });
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,44 +227,36 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
               ),
               TextField(
-                onChanged: (value) {
-                  setState(() {
-                    firstname = value;
-                  });
-                },
+controller: firstname,
                 decoration: fieldDecoration.copyWith(
                     errorText: firstnameError, hintText: 'Your first name'),
               ),
               SizedBox(height: 10),
               TextField(
-                onChanged: (value) {
-                  setState(() {
-                    email = value;
-                  });
-                },
+controller: lastname,
+                decoration: fieldDecoration.copyWith(
+                    errorText: lastnameError, hintText: 'Your last name'),
+              ),
+              SizedBox(height: 10),
+              TextField(
+controller: email,
+                keyboardType: TextInputType.emailAddress,
                 decoration: fieldDecoration.copyWith(errorText: emailError),
               ),
               SizedBox(height: 10),
               TextField(
+                controller: phoneNumber,
                 inputFormatters: [PhoneInputFormatter()],
                 keyboardType: TextInputType.phone,
-                onChanged: (value) {
-                  setState(() {
-                    phoneNumber = value;
-                  });
-                },
+
                 decoration: fieldDecoration.copyWith(
                     errorText: phoneError,
-                    hintText: "start with country code e.g '+234'"),
+                    hintText: "Mobile number (start with country code e.g '234')"),
               ),
               SizedBox(height: 10),
               TextField(
                 obscureText: obscureText,
-                onChanged: (value) {
-                  setState(() {
-                    password = value;
-                  });
-                },
+controller: password,
                 decoration: fieldDecoration.copyWith(
                   errorText: passwordError,
                   hintText: 'Password',
@@ -111,11 +282,7 @@ class _SignupScreenState extends State<SignupScreen> {
               SizedBox(height: 10),
               TextField(
                 obscureText: obscureText,
-                onChanged: (value) {
-                  setState(() {
-                    confirmPassword = value;
-                  });
-                },
+controller: confirmPassword,
                 decoration: fieldDecoration.copyWith(
                   errorText: confirmPasswordError,
                   hintText: 'Confirm Password',
@@ -132,9 +299,11 @@ class _SignupScreenState extends State<SignupScreen> {
               SizedBox(height: 20),
               RoundedButton(
                   title: 'Sign Up',
-                  active: emailError == null &&
-                      passwordError == null &&
-                      confirmPasswordError == null),
+                  active: buttonActive,
+              onPressed: () {
+             signUp();
+              },
+              ),
               SizedBox(height: 20),
               Row(
                 children: [

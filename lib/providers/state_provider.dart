@@ -8,6 +8,8 @@ class StateProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+
+
   PageController homePageController = PageController();
   int pageIndex = 0;
   initiateHomePageController() {
@@ -23,9 +25,9 @@ class StateProvider extends ChangeNotifier {
 
   }
 
-  String expandedId = '000';
-  changeExpandedId(String id) {
-    expandedId = id;
+  String expandedNumber = '';
+  changeExpandedNumber(String cardNumber) {
+    expandedNumber = cardNumber;
     notifyListeners();
   }
 
@@ -36,8 +38,8 @@ class StateProvider extends ChangeNotifier {
   }
 
   String selectedCard;
-  changeSelectedCard(String id) {
-    selectedCard = id;
+  changeSelectedCard(String cardNumber) {
+    selectedCard = cardNumber;
     notifyListeners();
   }
 

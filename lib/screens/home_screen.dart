@@ -5,6 +5,7 @@ import 'package:verigo/pages/home_page.dart';
 import 'package:verigo/pages/more_page.dart';
 import 'package:verigo/pages/order_page.dart';
 import 'package:verigo/pages/profile_page.dart';
+import 'package:verigo/providers/card_provider.dart';
 import 'package:verigo/providers/state_provider.dart';
 
 
@@ -30,6 +31,9 @@ PageController _controller = PageController();
      oldPageIndex = stateProvider.pageIndex;
 
    });
+
+    Provider.of<CreditCardProvider>(context, listen: false).getItem();
+
   }
 
   @override

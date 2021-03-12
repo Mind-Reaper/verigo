@@ -99,7 +99,7 @@ class StackedOrder extends StatelessWidget {
                         Text(
                           logName,
                           style: Theme.of(context).textTheme.headline3.copyWith(
-                              fontSize: 20, fontWeight: FontWeight.w500),
+                              fontSize: 25, fontWeight: FontWeight.w500),
                         ),
                         SizedBox(height: 5),
                         Row(
@@ -111,67 +111,67 @@ class StackedOrder extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                              if(transit)     Padding(
-                                    padding: const EdgeInsets.all(2.0),
+                                    padding: const EdgeInsets.all(4.0),
                                     child: Text(
                                       "Sender's Name: $senderName",
-                                      style: TextStyle(fontSize: 18),
+                                      style: TextStyle(fontSize: 16),
                                     ),
                                   ),
                                   if(completed)      Padding(
-                                    padding: const EdgeInsets.all(2.0),
+                                    padding: const EdgeInsets.all(4.0),
                                     child: Text(
                                       "Receiver's Name: $receiverName",
-                                      style: TextStyle(fontSize: 18),
+                                      style: TextStyle(fontSize: 16),
                                     ),
                                   ),
                                   if(completed)    Padding(
-                                    padding: const EdgeInsets.all(2.0),
+                                    padding: const EdgeInsets.all(4.0),
                                     child: Text(
                                       "Receiver's Mobile Number: $receiverNo",
-                                      style: TextStyle(fontSize: 18),
+                                      style: TextStyle(fontSize: 16),
                                     ),
                                   ),
                                   if(transit)    Padding(
-                                    padding: const EdgeInsets.all(2.0),
+                                    padding: const EdgeInsets.all(4.0),
                                     child: Text(
                                       "Sender's Mobile Number: $senderNo",
-                                      style: TextStyle(fontSize: 18),
+                                      style: TextStyle(fontSize: 16),
                                     ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.all(2.0),
+                                    padding: const EdgeInsets.all(4.0),
                                     child: Text(
                                       "Carrier: $carrier",
-                                      style: TextStyle(fontSize: 18),
+                                      style: TextStyle(fontSize: 16),
                                     ),
                                   ),
 
                                   if(pending)    Padding(
-                                    padding: const EdgeInsets.all(2.0),
+                                    padding: const EdgeInsets.all(4.0),
                                     child: Text(
                                       "Order Date: $orderDate",
-                                      style: TextStyle(fontSize: 18),
+                                      style: TextStyle(fontSize: 16),
                                     ),
                                   ),
                                   if(transit)     Padding(
-                                    padding: const EdgeInsets.all(2.0),
+                                    padding: const EdgeInsets.all(4.0),
                                     child: Text(
                                       "Pickup Date: $pickupDate",
-                                      style: TextStyle(fontSize: 18),
+                                      style: TextStyle(fontSize: 16),
                                     ),
                                   ),
                                   if(completed)    Padding(
-                                    padding: const EdgeInsets.all(2.0),
+                                    padding: const EdgeInsets.all(4.0),
                                     child: Text(
                                       "Delivery Date: $deliveryDate",
-                                      style: TextStyle(fontSize: 18),
+                                      style: TextStyle(fontSize: 16),
                                     ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.all(2.0),
+                                    padding: const EdgeInsets.all(4.0),
                                     child: Text(
                                       "Tracking ID: $trackingId",
-                                      style: TextStyle(fontSize: 18),
+                                      style: TextStyle(fontSize: 16),
                                     ),
                                   ),
                                 ],
@@ -205,13 +205,13 @@ class StackedOrder extends StatelessWidget {
                     child: Container(
                       height: 30,
                       width: 80,
+
                       decoration: BoxDecoration(
-                          color: Colors.transparent,
+                          color: Theme.of(context).primaryColor,
                           borderRadius: BorderRadius.only(
                               bottomLeft: Radius.circular(25),
                               topRight: Radius.circular(18)),
-                          border: Border.all(
-                              color: Theme.of(context).primaryColor, width: 2)),
+                        ),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Center(
@@ -221,8 +221,7 @@ class StackedOrder extends StatelessWidget {
                               style: Theme.of(context)
                                   .textTheme
                                   .button
-                                  .copyWith(
-                                      color: Theme.of(context).primaryColor),
+                                  ,
                             ),
                           ),
                         ),

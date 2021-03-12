@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>410870618014-pfncpsl7d0skgbfdoii5pi29l707k889.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.410870618014-pfncpsl7d0skgbfdoii5pi29l707k889</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCxT_RfK3d3T0T2Qu7uUrQ9AbyR1dXjE3Q</string>
+	<key>GCM_SENDER_ID</key>
+	<string>410870618014</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.verigo</string>
+	<key>PROJECT_ID</key>
+	<string>verigo-e65a8</string>
+	<key>STORAGE_BUCKET</key>
+	<string>verigo-e65a8.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:410870618014:ios:5acac975539333f5d9e88f</string>
+</dict>
+</plist>

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:verigo/providers/state_provider.dart';
+import 'package:verigo/providers/user_provider.dart';
 import 'package:verigo/screens/get_estimate_screen.dart';
 import 'package:verigo/screens/notifications_screen.dart';
 import 'package:verigo/screens/order_tracking_screen.dart';
@@ -145,6 +146,7 @@ hintText: "Tracking number",
 
   @override
   Widget build(BuildContext context) {
+    var userProvider = Provider.of<UserProvider>(context);
     var stateProvider = Provider.of<StateProvider>(context);
     online = stateProvider.online;
     return GestureDetector(
@@ -206,7 +208,7 @@ hintText: "Tracking number",
                                     ),
                                     SizedBox(height: 5),
                                     Text(
-                                      'Moyin Samson',
+                                      "${userProvider.name} ${userProvider.surname}",
                                       style: Theme.of(context)
                                           .textTheme
                                           .headline3

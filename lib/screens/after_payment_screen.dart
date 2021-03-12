@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -5,20 +7,40 @@ import 'package:verigo/screens/home_screen.dart';
 import 'package:verigo/widgets/appbar.dart';
 import 'package:verigo/widgets/buttons.dart';
 
-class AfterPaymentScreen extends StatelessWidget {
+class AfterPaymentScreen extends StatefulWidget {
   final bool paymentComplete;
   final String trackingId;
 
+
   const AfterPaymentScreen({Key key, this.paymentComplete, this.trackingId}) : super(key: key);
 
+  @override
+  _AfterPaymentScreenState createState() => _AfterPaymentScreenState();
+}
 
+class _AfterPaymentScreenState extends State<AfterPaymentScreen> {
+
+  double height = 0;
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Timer(Duration(milliseconds: 500), () {
+      setState(() {
+        height = 120;
+
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xfff6f6f6),
       appBar: appBar(context,
-      title: paymentComplete? 'Payment Complete' : 'Request Submitted',
+      title: widget.paymentComplete? 'Payment Complete' : 'Request Submitted',
         blackTitle: true,
         showbackArrow: false,
         backgroundColor: Colors.transparent,
@@ -29,9 +51,15 @@ class AfterPaymentScreen extends StatelessWidget {
           Expanded(child: ListView(
             children: [
               SizedBox(height: 40,),
-              Image(
-                image: AssetImage(paymentComplete ? 'assets/images/complete.png': 'assets/images/submitted.png'),
-                height: 120,
+              AnimatedContainer(
+                height: height,
+
+                duration: Duration(milliseconds: 500),
+                curve: Curves.bounceOut,
+                child: Image(
+                  image: AssetImage(widget.paymentComplete ? 'assets/images/complete.png': 'assets/images/submitted.png'),
+
+                ),
               ),
               SizedBox(height: 20,),
               Center(
@@ -52,7 +80,7 @@ class AfterPaymentScreen extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 32),
                   child: Text(
-               paymentComplete ?     'You will hear from our customer service or service provider concerning your delivery request shortly.'
+               widget.paymentComplete ?     'You will hear from our customer service or service provider concerning your delivery request shortly.'
                     :  "Your order has been submitted and you will get a notification as soon as your payment has been verified.\nPayment verification is usually done within 1-3hours.",
                     style: TextStyle(
                       color: Color(0xff414141),
@@ -89,7 +117,7 @@ class AfterPaymentScreen extends StatelessWidget {
                           children: [
                             Icon(FontAwesomeIcons.copy, color: Theme.of(context).primaryColor,),
                             SizedBox(width: 10,),
-                            Text(trackingId,
+                            Text(widget.trackingId,
                                 style: TextStyle(
                                   color: Theme.of(context).primaryColor,
                                 )),

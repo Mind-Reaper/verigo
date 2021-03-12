@@ -1,6 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:verigo/providers/authentication_provider.dart';
+import 'package:verigo/providers/user_provider.dart';
 import 'package:verigo/screens/reset_screen.dart';
 import 'package:verigo/screens/verification_screen.dart';
 import 'package:verigo/widgets/buttons.dart';
@@ -15,18 +20,97 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String email;
-  String emailError = '';
+
+  String emailError ;
   String passwordError;
-  String password;
+
   IconData passIcon = Icons.visibility;
   bool obscureText = true;
   String code = '0000';
 
+  TextEditingController email = TextEditingController();
+  TextEditingController password = TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    email.addListener(() {
+      setState(() {
+        if (!RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+            .hasMatch(email.text)) {
+          emailError = 'Invalid email address';
+        } else {
+          emailError = null;
+        }
+      });
+      activateButton();
+
+    });
+    password.addListener(() {
+      setState(() {
+        if (password.text
+            .trim()
+            .length < 8  ) {
+          passwordError = 'Password is too short or too long';
+        } else {
+          passwordError = null;
+        }
+      });
+      activateButton();
+    });
+  }
+  bool buttonActive = false;
+
+  activateButton() {
+    if( emailError == null && passwordError == null
+
+    ) {
+      setState(() {
+        buttonActive = true;
+      });
+    } else {
+      setState(() {
+        buttonActive = false;
+      });
+    }
+
+  }
+
+
+  signIn() async {
+    var authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+    var userProvider = Provider.of<UserProvider>(context, listen: false);
+
+ await   authProvider.tokenAuth(email.text, password.text).then((value) async {
+   if(value.length > 5) {
+     await authProvider.getCurrentUser().then((value) {
+       if(value != null) {
+         userProvider.setUser(value);
+         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+             builder: (context) => HomeScreen()
+         ),
+                 (Route<dynamic> route) => false
+         );
+         EasyLoading.dismiss();
+       } else {
+         EasyLoading.showError('Sign In Failed', duration: Duration(seconds: 3));
+
+       }
+     });
+   } else {
+     EasyLoading.showError("Email/Password Incorrect", duration: Duration(seconds: 3));
+
+   }
+ });
+
+  }
 
 
   @override
   Widget build(BuildContext context) {
+    var authProvider = Provider.of<AuthenticationProvider>(context);
     return Scaffold(
         body: Column(
       children: [
@@ -60,21 +144,14 @@ class _LoginScreenState extends State<LoginScreen> {
             child: ListView(
               children: [
                 TextField(
-                  onChanged: (value) {
-                    setState(() {
-                      email = value;
-                    });
-                  },
+                controller: email,
+                  keyboardType: TextInputType.emailAddress,
                   decoration: fieldDecoration.copyWith(errorText: emailError),
                 ),
                 SizedBox(height: 10),
                 TextField(
                   obscureText: obscureText,
-                  onChanged: (value) {
-                    setState(() {
-                      password = value;
-                    });
-                  },
+                 controller: password,
                   decoration: fieldDecoration.copyWith(
                     errorText: passwordError,
                     hintText: 'Password',
@@ -100,27 +177,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 20),
                 RoundedButton(
                     title: 'Sign In',
-                    active: true,
-                     // emailError == null && passwordError == null,
-                    onPressed: () {
-                      pushPage(context, VerificationScreen(
-                        header: 'Verification',
-                        info: 'Please verify the 4-digits code sent to your mobile number',
+                    active: buttonActive,
 
+                    onPressed: () async {
 
+signIn();
 
-                        onSubmitted: (value) {
-    if (value.length == 4) {
-        if (value == code) {
-     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-       builder: (context) => HomeScreen()
-     ),
-             (Route<dynamic> route) => false
-     );
-        }
-      }
-                        },
-                      ));
                     }),
                 SizedBox(height: 20),
                 GestureDetector(

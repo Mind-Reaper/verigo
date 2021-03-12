@@ -4,6 +4,8 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:provider/provider.dart';
+import 'package:verigo/models/card_model.dart';
+import 'package:verigo/providers/card_provider.dart';
 import 'package:verigo/providers/state_provider.dart';
 import 'package:verigo/screens/transaction_history_screen.dart';
 import 'package:verigo/widgets/appbar.dart';
@@ -202,27 +204,26 @@ class FundWallet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isSelected = Provider.of<StateProvider>(context).selectedCard != null;
+    var cardModel = Provider.of<CreditCardProvider>(context);
     return ListView(
       children: [
         SizedBox(height: 20),
-        CreditCard(
-          cardHolder: 'Daniel Onadipe',
-          cardId: '001',
-          cardIssuer: 'mastercard',
-          cardNumber: '5603584434936309',
-        ),
-        CreditCard(
-          cardHolder: 'Lanre Ogundipe',
-          cardId: '002',
-          cardIssuer: 'visa',
-          cardNumber: '6846456348672085',
-        ),
-        CreditCard(
-          cardHolder: 'Kore Fadaini',
-          cardId: '003',
-          cardIssuer: 'visa',
-          cardNumber: '6838592368394392',
-        ),
+        ListView.builder(
+physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: cardModel.creditCardList.length,
+            itemBuilder: (context, index) {
+              UserCreditCard card = cardModel.creditCardList[index];
+          return CreditCard(
+cardHolder: card.cardHolder,
+            cardIssuer: card.cardIssuer,
+            cardNumber: card.cardNumber,
+            cvv: card.cvv,
+            expiryDate: card.expiryDate,
+            index: index,
+
+          );
+        }),
         SizedBox(height: 15),
         Center(
           child: Padding(
