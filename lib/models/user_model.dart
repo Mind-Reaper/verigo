@@ -1,11 +1,11 @@
 import 'package:hive/hive.dart';
 
-// part 'user_model.g.dart';
+part 'user_model.g.dart';
 
-@HiveType()
+@HiveType(typeId: 1)
 class User {
   @HiveField(0)
-  final String userType;
+  final int userType;
 
   @HiveField(1)
   final String name;
@@ -43,6 +43,9 @@ class User {
   @HiveField(12)
   final String verigoNumber;
 
+  @HiveField(13)
+  final double walletBalance;
+
   User(
-      {this.phoneNumber, this.verigoNumber, this.accessToken, this.userType, this.name, this.surname, this.emailAddress, this.isActive, this.fullname, this.lastLoginTime, this.creationTime, this.roleNames, this.id});
+      {this.walletBalance, this.phoneNumber, this.verigoNumber, this.accessToken, this.userType, this.name, this.surname, this.emailAddress, this.isActive, this.fullname, this.lastLoginTime, this.creationTime, this.roleNames, this.id});
 }

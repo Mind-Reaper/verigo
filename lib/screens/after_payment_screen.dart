@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:verigo/constants.dart';
 import 'package:verigo/screens/home_screen.dart';
 import 'package:verigo/widgets/appbar.dart';
 import 'package:verigo/widgets/buttons.dart';
@@ -102,7 +104,7 @@ class _AfterPaymentScreenState extends State<AfterPaymentScreen> {
                 child: Center(
                   child: GestureDetector(
                     onTap: () {
-
+copy(context, widget.trackingId);
                     },
                     child: DottedBorder(
                       dashPattern: [3, 5],

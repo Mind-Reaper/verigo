@@ -1,30 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:verigo/providers/booking_provider.dart';
 import 'package:verigo/providers/state_provider.dart';
 import 'package:verigo/widgets/my_container.dart';
 
 class LogisticWidget extends StatelessWidget {
   final String logName;
-  final String price;
+  final int price;
   final int rating;
   final int totalDeliveries;
   final String distance;
+  final int index;
 
 
-  const LogisticWidget({Key key, this.logName, this.price, this.rating, this.totalDeliveries, this.distance}) : super(key: key);
+  const LogisticWidget({Key key, this.logName, this.price, this.rating, this.totalDeliveries, this.distance, this.index}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     var stateProvider = Provider.of<StateProvider>(context);
-    String selectedLog = stateProvider.selectedLogistic;
+    var booking = Provider.of<BookingProvider>(context);
+    int selectedLog = stateProvider.selectedLogistic;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
       child: GestureDetector(
       onTap: ()
  {
-   stateProvider.changeSelectedLogistic(logName);
+   stateProvider.changeSelectedLogistic(index);
+
+   booking.selectServiceProvider(index);
+
  }      ,  child: FloatingContainer(
-border: logName == selectedLog,
+border: index == selectedLog,
           padding: false,
           child: Column(
 
@@ -92,7 +98,7 @@ border: logName == selectedLog,
                                 Container(
                                   height: 10,
                                   width: 80,
-                                  child: ListView.builder(
+                                  child: rating < 1 ? Text('None') :ListView.builder(
                                       scrollDirection: Axis.horizontal,
                                       physics: NeverScrollableScrollPhysics(),
                                       itemCount: rating,

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:verigo/providers/user_provider.dart';
 
 import 'my_container.dart';
 
@@ -9,6 +11,7 @@ class WalletCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var userProvider = Provider.of<UserProvider>(context);
     return FloatingContainer(
       child: Row(children: [
         Container(
@@ -19,7 +22,8 @@ class WalletCard extends StatelessWidget {
                     image: AssetImage('assets/images/logo.png')))),
         SizedBox(width: 20),
         Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(
               'Wallet Balance',
               style: Theme.of(context)
@@ -29,11 +33,11 @@ class WalletCard extends StatelessWidget {
             ),
             SizedBox(height: 5),
             Text(
-              "N60,000.75",
+              "N${userProvider.currentUser.walletBalance}",
               style: Theme.of(context).textTheme.headline2.copyWith(
-                color: Theme.of(context).primaryColor,
-                fontWeight: FontWeight.w600,
-              ),
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
           ]),
         )

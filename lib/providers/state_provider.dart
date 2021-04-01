@@ -31,9 +31,9 @@ class StateProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  String selectedLogistic = 'selectedLogistic';
-  changeSelectedLogistic(String logName) {
-    selectedLogistic = logName;
+  int selectedLogistic = 0;
+  changeSelectedLogistic(int index) {
+    selectedLogistic = index;
     notifyListeners();
   }
 
@@ -56,3 +56,4 @@ class StateProvider extends ChangeNotifier {
   }
 
 }
+

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_paystack/flutter_paystack.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:location/location.dart';
@@ -11,12 +12,16 @@ import 'package:provider/provider.dart';
 
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:verigo/models/card_model.dart';
+import 'package:verigo/models/user_model.dart';
 import 'package:verigo/providers/authentication_provider.dart';
 import 'package:verigo/providers/card_provider.dart';
 import 'package:verigo/providers/google_map_provider.dart';
+import 'package:verigo/providers/payment_provider.dart';
 import 'package:verigo/providers/user_provider.dart';
+import 'package:verigo/screens/home_screen.dart';
 
 import 'constants.dart';
+import 'providers/booking_provider.dart';
 import 'providers/state_provider.dart';
 import 'screens/introduction_screen.dart';
 
@@ -26,6 +31,8 @@ void main() async {
       await path_provider.getApplicationDocumentsDirectory();
   Hive.init(appDocumentDirectory.path);
   Hive.registerAdapter(UserCreditCardAdapter());
+  Hive.registerAdapter(UserAdapter());
+  PaystackPlugin().initialize(publicKey: 'pk_test_162f59052b353792406b069174446f4419d1f599');
   runApp(MyApp());
   configLoading();
 }
@@ -33,13 +40,13 @@ void main() async {
 void configLoading() {
   EasyLoading.instance
     ..displayDuration = const Duration(milliseconds: 2000)
-    ..indicatorType = EasyLoadingIndicatorType.rotatingCircle
+    ..indicatorType = EasyLoadingIndicatorType.chasingDots
     ..loadingStyle = EasyLoadingStyle.custom
     ..indicatorSize = 50.0
     ..radius = 15.0
     ..progressColor = Color(0xff7A4B9D)
     ..backgroundColor = Colors.transparent
-    ..indicatorColor = Color(0xffF48043)
+    ..indicatorColor = Color(0xff7A4B9D)
     ..textAlign = TextAlign.center
     ..textColor = Colors.white
     ..textStyle = TextStyle(
@@ -48,13 +55,23 @@ void configLoading() {
         fontWeight: FontWeight.w500,
         letterSpacing: 1.0)
     ..maskType = EasyLoadingMaskType.black
-    ..infoWidget = Icon(FontAwesomeIcons.infoCircle, size: 50, color: Colors.white,)
-    ..successWidget = Icon(FontAwesomeIcons.solidCheckCircle, size: 50, color: Colors.white,)
-    ..errorWidget = Icon(Icons.cancel, size: 50, color: Colors.white,)
+    ..infoWidget = Icon(
+      FontAwesomeIcons.infoCircle,
+      size: 50,
+      color: Colors.white,
+    )
+    ..successWidget = Icon(
+      FontAwesomeIcons.solidCheckCircle,
+      size: 50,
+      color: Colors.white,
+    )
+    ..errorWidget = Icon(
+      Icons.cancel,
+      size: 50,
+      color: Colors.white,
+    )
     ..userInteractions = true
-..toastPosition = EasyLoadingToastPosition.bottom
-
-
+    ..toastPosition = EasyLoadingToastPosition.bottom
     ..dismissOnTap = false;
 }
 
@@ -63,12 +80,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-
         ChangeNotifierProvider(create: (context) => StateProvider()),
         ChangeNotifierProvider(create: (context) => CreditCardProvider()),
         ChangeNotifierProvider(create: (context) => AuthenticationProvider()),
         ChangeNotifierProvider(create: (context) => UserProvider()),
         ChangeNotifierProvider(create: (context) => GoogleMapProvider()),
+        ChangeNotifierProvider(create: (context) => BookingProvider()),
+        ChangeNotifierProvider(create: (context) => PaymentProvider()),
       ],
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle(
@@ -131,16 +149,51 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Hive.openBox('app_data');
 
     // Show Splash Screen For Few Seconds
-    Timer(Duration(seconds: 2), () async {
+    Timer(Duration(seconds: 1), () async {
+      var userProvider = Provider.of<UserProvider>(context, listen: false);
+
+      var authProvider =
+          Provider.of<AuthenticationProvider>(context, listen: false);
+      await userProvider.getUser();
+      User user = userProvider.currentUser;
+
       Location().enableBackgroundMode(enable: true);
-      Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (_, __, ___) => IntroductionScreen(),
-          ));
+
+      if (user?.accessToken == null) {
+        Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (_, __, ___) => IntroductionScreen(),
+            ));
+      } else {
+       await authProvider
+            .getCurrentUser(context, accessToken: user.accessToken)
+            .then((value) {
+          if (value == null) {
+            EasyLoading.showInfo('Session Expired');
+            Navigator.pushReplacement(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (_, __, ___) => IntroductionScreen(),
+                ));
+          } else {
+            Navigator.pushReplacement(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (_, __, ___) => HomeScreen(),
+                ));
+          }
+        }).timeout(Duration(seconds: 10), onTimeout: () {
+          EasyLoading.showInfo('Session Expired');
+          Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (_, __, ___) => IntroductionScreen(),
+              ));
+        });
+      }
     });
   }
 

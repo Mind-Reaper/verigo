@@ -186,7 +186,7 @@ hintText: "Tracking number",
                             child: CircleAvatar(
                               radius: 30,
                               backgroundImage:
-                              AssetImage('assets/images/verigo_name.png'),
+                              AssetImage('assets/images/profilepic.jpg'),
                             ),
                           ),
                           Expanded(
@@ -208,7 +208,7 @@ hintText: "Tracking number",
                                     ),
                                     SizedBox(height: 5),
                                     Text(
-                                      "${userProvider.name} ${userProvider.surname}",
+                                      "${userProvider.currentUser.name}",
                                       style: Theme.of(context)
                                           .textTheme
                                           .headline3

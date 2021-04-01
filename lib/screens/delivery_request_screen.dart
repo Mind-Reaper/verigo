@@ -7,6 +7,8 @@ import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:provider/provider.dart';
+import 'package:verigo/providers/booking_provider.dart';
 import 'package:verigo/screens/service_providers_screen.dart';
 import 'package:verigo/widgets/appbar.dart';
 import 'package:verigo/widgets/buttons.dart';
@@ -28,25 +30,117 @@ class DeliveryRequestScreen extends StatefulWidget {
 class _DeliveryRequestScreenState extends State<DeliveryRequestScreen> {
   TextEditingController pickupController = TextEditingController();
   TextEditingController dropoffController = TextEditingController();
+  TextEditingController senderNameController = TextEditingController();
+  TextEditingController senderNumberController = TextEditingController();
+  TextEditingController receiverNameController = TextEditingController();
+  TextEditingController receiverNumberController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  String senderNameError = '';
+  String senderNumberError = '';
+  String receiverNumberError = '';
+  String receiverNameError = '';
+  String descriptionError = '';
+  String pickupTime;
+  bool buttonActive = false;
+
   DateTime pickupDate;
-  TimeOfDay pickupTime;
   DateTime now = DateTime.now();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    var booking = Provider.of<BookingProvider>(context, listen: false);
     setState(() {
-      pickupController.text = widget.pickup;
-      dropoffController.text = widget.dropoff;
+      booking.getServiceProviders(context, bg: true);
+      pickupController.text = booking.pickupAddress;
+      dropoffController.text = booking.dropoffAddress;
     });
+    senderNameController.addListener(() {
+      setState(() {
+        if (senderNameController.text.trim().split(' ').length < 2 ||
+            senderNameController.text.trim().split(' ').length  > 3) {
+          senderNameError = 'Please input full name only';
+        } else {
+          senderNameError = null;
+        }
+      });
+      activateButton();
+    });
+    receiverNameController.addListener(() {
+      setState(() {
+        if (receiverNameController.text.trim().split(' ').length < 2||
+            receiverNameController.text.trim().split(' ').length > 3) {
+          receiverNameError = 'Please input full name only';
+        } else {
+          receiverNameError = null;
+        }
+      });
+      activateButton();
+    });
+    senderNumberController.addListener(() {
+      setState(() {
+
+        if (senderNumberController.text.trim().replaceAll(' ', '').length < 14 ||
+            senderNumberController.text.trim().replaceAll(' ', '').length > 14) {
+          senderNumberError = 'Mobile number is too short or too long';
+        } else {
+          senderNumberError = null;
+        }
+      });
+      activateButton();
+    });
+    receiverNumberController.addListener(() {
+      setState(() {
+
+        if (receiverNumberController.text.trim().replaceAll(' ', '').length < 14 ||
+            receiverNumberController.text.trim().replaceAll(' ', '').length > 14) {
+          receiverNumberError = 'Mobile number is too short or too long';
+        } else {
+          receiverNumberError = null;
+        }
+      });
+      activateButton();
+    });
+    descriptionController.addListener(() {
+      setState(() {
+        if (descriptionController.text.trim().split(' ').length < 10 ) {
+          descriptionError = 'Description should be at least 10 words';
+        } else {
+          descriptionError = null;
+        }
+      });
+      activateButton();
+    });
+  }
+
+  activateButton() {
+    if (senderNameError == null &&
+        receiverNameError == null &&
+        receiverNumberError == null &&
+        senderNumberError == null &&
+        descriptionError == null
+       ) {
+      setState(() {
+        buttonActive = true;
+      });
+    } else {
+      setState(() {
+        buttonActive = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    var booking = Provider.of<BookingProvider>(context);
     return GestureDetector(
       onTap: ()=>FocusScope.of(context).requestFocus(new FocusNode()),
+      onVerticalDragDown:  (details)=>FocusScope.of(context).requestFocus(new FocusNode()),
+
+
       child: Scaffold(
+
         backgroundColor: Color(0xfff6f6f6),
         appBar: appBar(context,
         title: 'Delivery Request',
@@ -66,6 +160,7 @@ body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         child: TextField(
           controller: pickupController,
+          style: TextStyle(color: Colors.grey),
           decoration: fieldDecoration.copyWith(hintText: 'Pickup Address', fillColor: Colors.white),
           enabled: false,
         ),
@@ -73,18 +168,19 @@ body: ListView(
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         child: TextField(
-
-          decoration: fieldDecoration.copyWith(hintText: "Sender's Full Name", fillColor: Colors.white),
+controller: senderNameController,
+          decoration: fieldDecoration.copyWith(hintText: "Sender's Full Name", fillColor: Colors.white, errorText: senderNameError),
 
         ),
       ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         child: TextField(
+          controller: senderNumberController,
           inputFormatters: [PhoneInputFormatter()],
           keyboardType: TextInputType.phone,
 
-          decoration: fieldDecoration.copyWith(hintText: "Sender's Mobile Number", fillColor: Colors.white),
+          decoration: fieldDecoration.copyWith(hintText: "Sender's Mobile Number", fillColor: Colors.white, errorText: senderNumberError),
 
         ),
       ),
@@ -117,6 +213,8 @@ body: ListView(
 
                           setState(() {
                             pickupDate= dateTime;
+                            pickupTime = pickupDate.toString();
+
 
                           });
                         },
@@ -151,6 +249,7 @@ body: ListView(
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         child: TextField(
+          style: TextStyle(color: Colors.grey),
           controller: dropoffController,
           decoration: fieldDecoration.copyWith(hintText: 'Delivery Address', fillColor: Colors.white),
           enabled: false,
@@ -159,27 +258,29 @@ body: ListView(
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         child: TextField(
-
-          decoration: fieldDecoration.copyWith(hintText: "Receiver's Full Name", fillColor: Colors.white),
+controller: receiverNameController,
+          decoration: fieldDecoration.copyWith(hintText: "Receiver's Full Name", fillColor: Colors.white, errorText: receiverNameError),
 
         ),
       ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         child: TextField(
+          controller: receiverNumberController,
           inputFormatters: [PhoneInputFormatter()],
           keyboardType: TextInputType.phone,
 
-          decoration: fieldDecoration.copyWith(hintText: "Receiver's Mobile Number", fillColor: Colors.white),
+          decoration: fieldDecoration.copyWith(hintText: "Receiver's Mobile Number", fillColor: Colors.white, errorText: receiverNumberError),
 
         ),
       ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         child: TextField(
+          controller: descriptionController,
 minLines: 4,
           maxLines: 5,
-          decoration: fieldDecoration.copyWith(hintText: "Item Description", fillColor: Colors.white),
+          decoration: fieldDecoration.copyWith(hintText: "Item Description", fillColor: Colors.white, errorText: descriptionError),
 
         ),
       ),
@@ -206,9 +307,27 @@ minLines: 4,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: RoundedButton(
           title: 'Proceed',
-          active: true,
+          active: buttonActive,
           onPressed: () {
-pushPage(context, ServiceProvidersScreen());
+            booking.changeDetails(
+              senderName: senderNameController.text,
+              receiverName: receiverNameController.text,
+              senderNumber: senderNumberController.text.replaceAll(" ", ''),
+              receiverNumber: receiverNumberController.text.replaceAll(' ', ''),
+              itemDescription: descriptionController.text,
+              pickupTime: pickupTime,
+            );
+if(booking.serviceProviders == null) {
+
+  booking.getServiceProviders(context).then((value) {
+    if(value)
+    pushPage(context, ServiceProvidersScreen());
+
+  });
+} else {
+  pushPage(context, ServiceProvidersScreen());
+}
+
           },
         ),
       ),

@@ -1,6 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 import 'package:verigo/providers/state_provider.dart';
 import 'package:verigo/widgets/appbar.dart';
 import 'package:verigo/widgets/buttons.dart';
@@ -68,23 +69,28 @@ height: 50,
 
                     Align(
                       alignment: Alignment.centerRight,
-                      child: Container(
+                      child: GestureDetector(
+                        onTap: () {
+                          copy(context, 'VERISURE');
+                        },
+                        child: Container(
 height: 50,
-                        width: 80,
-                        decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(25),
-                              topRight: Radius.circular(18),
-                              bottomRight: Radius.circular(18),
-                            )),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(
-                            child: FittedBox(
-                              child: Text(
-                                'Copy',
-                                style: Theme.of(context).textTheme.button,
+                          width: 80,
+                          decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(25),
+                                topRight: Radius.circular(18),
+                                bottomRight: Radius.circular(18),
+                              )),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: FittedBox(
+                                child: Text(
+                                  'Copy',
+                                  style: Theme.of(context).textTheme.button,
+                                ),
                               ),
                             ),
                           ),
@@ -108,6 +114,9 @@ height: 50,
             child: RoundedButton(
               title: 'Share',
               active: true,
+              onPressed: () {
+                Share.share('VERIME2021', subject: 'Join Verigo with my referral code');
+              },
             ),
           )
         ],

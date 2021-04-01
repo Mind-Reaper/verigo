@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:verigo/constants.dart';
 import 'package:verigo/main.dart';
 import 'package:verigo/providers/state_provider.dart';
+import 'package:verigo/providers/user_provider.dart';
 import 'package:verigo/screens/invite_screen.dart';
 import 'package:verigo/screens/wallet_screen.dart';
 import 'package:verigo/widgets/appbar.dart';
@@ -20,6 +21,8 @@ class _MorePageState extends State<MorePage> {
   @override
   Widget build(BuildContext context) {
     var stateProvider = Provider.of<StateProvider>(context);
+    var userProvider = Provider
+        .of<UserProvider>(context);
     return Scaffold(
       backgroundColor: Color(0xfff6f6f6),
       appBar: appBar(context,
@@ -68,7 +71,7 @@ class _MorePageState extends State<MorePage> {
                                 SizedBox(height: 5),
                                 FittedBox(
                                   child: Text(
-                                    "N60,000.75",
+                                    "N${userProvider.currentUser.walletBalance}",
                                     style: Theme.of(context)
                                         .textTheme
                                         .button
@@ -136,6 +139,7 @@ class _MorePageState extends State<MorePage> {
               title: 'Logout',
               active: true,
               onPressed: () {
+userProvider.logout();
                 Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
                     builder: (context) => SplashScreen()
                 ),

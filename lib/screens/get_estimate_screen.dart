@@ -4,20 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_place_picker/google_maps_place_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:verigo/providers/booking_provider.dart';
 import 'package:verigo/widgets/appbar.dart';
 import 'package:verigo/widgets/buttons.dart';
 import 'package:verigo/widgets/my_container.dart';
 import 'package:google_maps_webservice/src/core.dart';
 
-
 import '../constants.dart';
 import 'delivery_request_screen.dart';
 
-Map<int, List<Map<String, int>>> packages = {
-
-
-};
-
+// Map<int, List<Map<String, int>>> packages = {
+//
+//
+// };
+List packages = [];
 
 
 class GetEstimateScreen extends StatefulWidget {
@@ -29,28 +30,30 @@ class _GetEstimateScreenState extends State<GetEstimateScreen> {
   bool intra = true;
   String selectedState = 'Select Delivery State';
   IconData carrierIcon = FontAwesomeIcons.motorcycle;
-  String selectedCarrier = 'Bike';
-  List selectedPackageList = bikePackages;
-  List packageWidgets = [
-
-  ];
-
+  Map selectedCarrier;
+  List selectedPackageList = bicyclePackages;
+  List packageWidgets = [];
 
   TextEditingController pickupController = TextEditingController();
 
   TextEditingController dropoffController = TextEditingController();
 
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    packages = {};
+    var booking = Provider.of<BookingProvider>(context, listen: false);
+    selectedCarrier = carrier[0];
+
+    booking.clearBooking();
+    packages = [];
   }
+
   @override
   Widget build(BuildContext context) {
+    var booking = Provider.of<BookingProvider>(context);
     return GestureDetector(
-      onTap: ()=> FocusScope.of(context).requestFocus(new FocusNode()),
+      onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
       child: Scaffold(
         backgroundColor: Color(0xfff6f6f6),
         appBar: appBar(
@@ -71,7 +74,7 @@ class _GetEstimateScreenState extends State<GetEstimateScreen> {
                   Text(
                     intra ? 'Intrastate' : 'Interstate',
                     style: Theme.of(context).textTheme.headline2.copyWith(
-                      fontSize: 20,
+                          fontSize: 20,
                           color: intra
                               ? Theme.of(context).primaryColor
                               : Colors.black54,
@@ -91,13 +94,16 @@ class _GetEstimateScreenState extends State<GetEstimateScreen> {
               ),
             ),
             SizedBox(height: 20),
-            if (!intra)   Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-              child: Text('Select drop-off state'),
-            ),
             if (!intra)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                child: Text('Select drop-off state'),
+              ),
+            if (!intra)
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                 child: FloatingContainer(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -148,8 +154,7 @@ class _GetEstimateScreenState extends State<GetEstimateScreen> {
               ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: TextField(
-                controller: pickupController,
+              child: GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
@@ -157,41 +162,47 @@ class _GetEstimateScreenState extends State<GetEstimateScreen> {
                       builder: (context) => PlacePicker(
                         apiKey: apiKey,
                         region: 'ng',
-searchForInitialValue: true,
+                        hidePlaceDetailsWhenDraggingPin: false,
+                        searchForInitialValue: true,
+                        selectInitialPosition: false,
                         initialSearchString: pickupController.text,
                         autocompleteComponents: [
                           Component(Component.country, "ng"),
-
-
                         ],
-
 
                         // Put YOUR OWN KEY here.
                         onPlacePicked: (result) {
-                          print(result.formattedAddress);
-                          print(result.geometry.location.lat + result.geometry.location.lng);
+
                           setState(() {
+
                             pickupController.text = result.formattedAddress;
                           });
+                          booking.changeBookingLocation(
+pickupAddress: result.formattedAddress,
+                            pickupLatitude: result.geometry.location.lat,
+                            pickupLongitude: result.geometry.location.lng,
+                          );
                           Navigator.of(context).pop();
                         },
-                       initialPosition: LatLng(42.7477863, -71.1699932),
-                        useCurrentLocation: true,
+                        initialPosition: LatLng(6.7477863, 3.1699932),
+                        useCurrentLocation: false,
                       ),
                     ),
                   );
                 },
-                enabled: true,
-                decoration: fieldDecoration.copyWith(
-                  fillColor: Colors.white,
-                  hintText: 'Enter Pickup Location',
+                child: TextField(
+                  controller: pickupController,
+                  enabled: false,
+                  decoration: fieldDecoration.copyWith(
+                    fillColor: Colors.white,
+                    hintText: 'Enter Pickup Location',
+                  ),
                 ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: TextField(
-                controller: dropoffController,
+              child: GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
@@ -201,30 +212,34 @@ searchForInitialValue: true,
                         initialSearchString: dropoffController.text,
                         autocompleteComponents: [
                           Component(Component.country, "ng"),
-
-
                         ],
-
-                        searchForInitialValue: true,// Put YOUR OWN KEY here.
+                        hidePlaceDetailsWhenDraggingPin: false,
+                        searchForInitialValue: true, // Put YOUR OWN KEY here.
                         onPlacePicked: (result) {
 
-                          print(result.formattedAddress);
-                          print(result.geometry.location.lat + result.geometry.location.lng);
                           setState(() {
                             dropoffController.text = result.formattedAddress;
                           });
+                          booking.changeBookingLocation(
+                            dropoffAddress: result.formattedAddress,
+                            dropoffLatitude: result.geometry.location.lat,
+                            dropoffLongitude: result.geometry.location.lng
+                          );
                           Navigator.of(context).pop();
                         },
-                        initialPosition: LatLng(42.7477863, -71.1699932),
-useCurrentLocation: false,
-
+                        initialPosition: LatLng(6.7477863, 3.1699932),
+                        useCurrentLocation: false,
                       ),
                     ),
                   );
                 },
-                decoration: fieldDecoration.copyWith(
-                  fillColor: Colors.white,
-                  hintText: 'Enter Delivery Location',
+                child: TextField(
+                  controller: dropoffController,
+                  enabled: false,
+                  decoration: fieldDecoration.copyWith(
+                    fillColor: Colors.white,
+                    hintText: 'Enter Delivery Location',
+                  ),
                 ),
               ),
             ),
@@ -242,11 +257,11 @@ useCurrentLocation: false,
                     Row(
                       children: [
                         Icon(
-                          carrierIcon,
+                          selectedCarrier['icon'],
                         ),
                         SizedBox(width: 20),
                         Text(
-                          selectedCarrier,
+                          selectedCarrier['name'],
                           style:
                               TextStyle(fontSize: 20, color: Color(0xff414141)),
                         ),
@@ -266,27 +281,32 @@ useCurrentLocation: false,
                                   childCount: carrier.length,
                                   onSelectedItemChanged: (index) {
                                     setState(() {
-                                      selectedCarrier = carrier[index]['name'];
-                                      carrierIcon = carrier[index]['icon'];
-                                      if(selectedCarrier == 'Bike') {
+
+                                      selectedCarrier = carrier[index];
+                                      booking.changeCarrier(selectedCarrier);
+                                   int   carrierIndex = selectedCarrier['index'];
+
+
+                                      if (carrierIndex == 1) {
+                                        selectedPackageList = bicyclePackages;
+                                      } else if (carrierIndex ==
+                                          2) {
                                         selectedPackageList = bikePackages;
-                                      } else if(selectedCarrier == 'Tricycle') {
+                                      } else if (carrierIndex == 3) {
                                         selectedPackageList = tricyclePackages;
-                                      } else if(selectedCarrier == 'Minivan') {
-                                        selectedPackageList = minivanPackages;
-                                      } else if(selectedCarrier == 'Van/Bus') {
+                                      } else if (carrierIndex == 4) {
                                         selectedPackageList = busPackages;
-                                      } else if(selectedCarrier == 'Truck') {
+                                      } else if (carrierIndex == 5) {
                                         selectedPackageList = truckPackages;
                                       }
-                                      packages = {};
+                                      packages = [];
                                       packageWidgets = [];
-
                                     });
                                   },
                                   itemBuilder: (context, index) {
                                     return Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Icon(
                                           carrier[index]['icon'],
@@ -314,60 +334,71 @@ useCurrentLocation: false,
                 ),
               ),
             ),
-           ListView.builder(
-             itemCount: packageWidgets.length,
-               physics: NeverScrollableScrollPhysics(),
-               shrinkWrap: true,
-               itemBuilder: (context, index) {
-             return Package(packageList: selectedPackageList, index: index,);
-           }),
-            SizedBox(height: 10,),
+            ListView.builder(
+                itemCount: packageWidgets.length,
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  return Package(
+                    packageList: selectedPackageList,
+                    index: index,
+                  );
+                }),
+            SizedBox(
+              height: 10,
+            ),
             Row(
-
               children: [
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
                         packageWidgets.add('packages');
-
                       });
+                      booking.changeEstimated(false);
                     },
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      child: Text( packageWidgets.length >0? 'Add Another Package' : 'Add A Package',
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
+                      child: Text(
+                        packageWidgets.length > 0
+                            ? 'Add Another Package'
+                            : 'Add A Package',
                         style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400
-                        ),
-
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400),
                       ),
                     ),
                   ),
                 ),
-                SizedBox(width: 20,),
+                SizedBox(
+                  width: 20,
+                ),
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                  if(  packageWidgets.length >0)   setState(() {
-                        packageWidgets.removeAt(packageWidgets.length-1);
+                      if (packageWidgets.length > 0) {
                         print(packageWidgets.length);
-                        packages.remove(packageWidgets.length);
-
-
-                      });
+                        setState(() {
+                          packages.removeAt(packages.length - 1);
+                          packageWidgets.removeAt(packageWidgets.length - 1);
+                        });
+                        booking.changeEstimated(false);
+                      }
                     },
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      child: Text('Delete Package',
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
+                      child: Text(
+                        'Delete Package',
                         style: TextStyle(
-                            color: packageWidgets.length > 0? Theme.of(context).primaryColor : Colors.grey,
+                            color: packageWidgets.length > 0
+                                ? Theme.of(context).primaryColor
+                                : Colors.grey,
                             fontSize: 20,
-                            fontWeight: FontWeight.w400
-                        ),
+                            fontWeight: FontWeight.w400),
                         textAlign: TextAlign.end,
-
                       ),
                     ),
                   ),
@@ -384,16 +415,20 @@ useCurrentLocation: false,
                   color: Color(0xff414141),
                   radius: const Radius.circular(15),
                   child: Container(
-
                     width: double.infinity,
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text("N1500.00 - N2300.00",
+                        child: Text(
+                            booking.minimumEstimation != null && booking.maximumEstimation!= null
+                                ? "N${booking.minimumEstimation}.00 - N${booking.maximumEstimation}.00"
+                                : "N0.00 - N0.00",
                             style: Theme.of(context)
                                 .textTheme
                                 .headline2
-                                .copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor)),
+                                .copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).primaryColor)),
                       ),
                     ),
                   ),
@@ -408,34 +443,47 @@ useCurrentLocation: false,
                   dashPattern: [2, 6],
                   child: Container()),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Icon(
-                    FontAwesomeIcons.infoCircle,
-                    color: Colors.grey,
-                    size: 30,
-                  ),
-                  SizedBox(width: 5),
-                  Flexible(
-                      child: Text(
-                          "Calculate estimated shipping cost based on order value and total weight of the item."))
-                ],
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 16),
+            //   child: Row(
+            //     children: [
+            //       Icon(
+            //         FontAwesomeIcons.infoCircle,
+            //         color: Colors.grey,
+            //         size: 30,
+            //       ),
+            //       SizedBox(width: 5),
+            //       Flexible(
+            //           child: Text(
+            //               "Calculate estimated shipping cost based on order value and total weight of the item."))
+            //     ],
+            //   ),
+            // ),
             SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: RoundedButton(
-                title: 'Book Now',
-                active: pickupController.text.length > 10 && pickupController.text.length > 10 != null && packages.length >= 1 ? true : false ,
-                onPressed: () {
-                  pushPage(context, DeliveryRequestScreen(
-                    pickup: pickupController.text,
-                    dropoff: dropoffController.text,
-                  ));
-                },
+                title: booking.estimated ? 'Book Now' : 'Get Estimate',
+                active: pickupController.text.length > 10 &&
+                        pickupController.text.length > 10 != null &&
+                        packages.length >= 1
+
+                    ? true
+                    : false,
+                onPressed: !booking.estimated
+                    ? ()  {
+booking.changeCarrier(selectedCarrier);
+booking.getEstimate(context);
+                }
+                    : () {
+
+                        pushPage(
+                            context,
+                            DeliveryRequestScreen(
+                              pickup: pickupController.text,
+                              dropoff: dropoffController.text,
+                            ));
+                      },
               ),
             ),
             SizedBox(height: 30),
@@ -458,37 +506,27 @@ class Package extends StatefulWidget {
 
 class _PackageState extends State<Package> {
   int selectedBoxNumber = 0;
-  String selectedPackage = 'Document';
+  Map selectedPackage ;
 
-  updatePackages() {
-
-setState(() {
-  // packages.update(widget.index, (value) => [
-  //   {
-  //     selectedPackage: selectedBoxNumber
-  //   }
-  // ]);
-  print(selectedPackage);
+  updatePackages(int index) {
+    var booking = Provider.of<BookingProvider>(context, listen: false);
+    booking.changeEstimated(false);
 
 
-  packages.putIfAbsent(widget.index, () =>
-  [
-    {
-      selectedPackage: selectedBoxNumber
-    }
-  ]);
-  packages.update(widget.index, (value) =>
-  [
-    {
-      selectedPackage: selectedBoxNumber
-    }
-  ]);
 
-  print(packages);
-});
+    setState(() {
+      if (packages.length > index) {
 
+        packages[index] = {'size': selectedPackage['size'], 'quantity': selectedBoxNumber};
+      } else {
+        packages.add({'size': selectedPackage['size'], 'quantity': selectedBoxNumber});
+      }
+      // print(selectedPackage);
+
+
+      print(packages);
+    });
   }
-
 
   @override
   void initState() {
@@ -497,7 +535,6 @@ setState(() {
     setState(() {
       selectedPackage = widget.packageList[0];
     });
-
   }
 
   @override
@@ -522,12 +559,14 @@ setState(() {
                       children: [
                         Flexible(
                           child: Text(
-                            selectedPackage,
-                            style:
-                            TextStyle( fontSize: 18,color: Color(0xff414141)),
+                            selectedPackage['name'],
+                            style: TextStyle(
+                                fontSize: 18, color: Color(0xff414141)),
                           ),
                         ),
-                        SizedBox(width: 5,),
+                        SizedBox(
+                          width: 5,
+                        ),
                         InkWell(
                           // splashColor: Theme.of(context).primaryColor,
                           onTap: () {
@@ -542,15 +581,13 @@ setState(() {
                                       childCount: widget.packageList.length,
                                       onSelectedItemChanged: (index) {
                                         setState(() {
-                                          selectedPackage = widget.packageList[index];
-
-
+                                          selectedPackage =
+                                              widget.packageList[index];
                                         });
-                                        updatePackages();
+                                        updatePackages(widget.index);
                                       },
                                       itemBuilder: (context, index) {
-                                        return Text(
-                                            widget.packageList[index]);
+                                        return Text(widget.packageList[index]['name']);
                                       },
                                     ),
                                   );
@@ -608,9 +645,8 @@ setState(() {
                                       onSelectedItemChanged: (index) {
                                         setState(() {
                                           selectedBoxNumber = boxNumber[index];
-
                                         });
-                                        updatePackages();
+                                        updatePackages(widget.index);
                                       },
                                       itemBuilder: (context, index) {
                                         return Text(

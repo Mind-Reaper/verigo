@@ -49,6 +49,22 @@ pushPage(BuildContext context, page) {
       ));
 }
 
+copy(BuildContext context, String text) {
+  Clipboard.setData(ClipboardData(text: text)).then((_){
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: const Text('Copied to clipboard', textAlign: TextAlign.center,),
+      duration: const Duration(seconds: 2),
+      backgroundColor: Colors.black87,
+elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+margin: EdgeInsets.symmetric(vertical: 70, horizontal: 50),
+
+      behavior: SnackBarBehavior.floating,
+
+    ));
+  });
+}
+
 List<String> states = [
   "Abia",
   "Adamawa",
@@ -90,17 +106,18 @@ List<String> states = [
 ];
 
 List carrier = [
-  {'icon': FontAwesomeIcons.motorcycle, 'name': 'Bike'},
-  {'icon': FontAwesomeIcons.truck, 'name': 'Tricycle'},
-  {'icon': FontAwesomeIcons.shuttleVan, 'name': 'Minivan'},
-  {'icon': FontAwesomeIcons.bus, 'name': 'Van/Bus'},
-  {'icon': FontAwesomeIcons.trailer, 'name': 'Truck'},
+{'icon': FontAwesomeIcons.bicycle, 'name': 'Bicycle', 'index': 1},
+  {'icon': FontAwesomeIcons.motorcycle, 'name': 'Bike', 'index': 2},
+  {'icon': FontAwesomeIcons.truck, 'name': 'Tricycle', 'index': 3},
+
+  {'icon': FontAwesomeIcons.bus, 'name': 'Van/Bus','index': 4},
+  {'icon': FontAwesomeIcons.trailer, 'name': 'Truck', 'index': 5},
 ];
 
 List boxSize = ['Small Box', 'Medium Box', 'Large Box'];
 
 List boxNumber = [
-  0,
+
   1,
   2,
   3,
@@ -263,46 +280,51 @@ List orders = [
 
 ];
 
+List bicyclePackages = [
+  {'name': 'Document','size': 1},
+  {'name': 'Small Box','size': 2},
+
+
+];
+
 List bikePackages = [
-  'Document',
-  'Small Box'
+  {'name': 'Document','size': 1},
+  {'name': 'Small Box','size': 2},
+  {'name': 'Medium Box','size': 3},
 ];
 
 List tricyclePackages = [
-  'Small Box',
-  'Medium Box'
-];
-
-List minivanPackages = [
-  'Medium Box',
-  'Large Box'
+  {'name': 'Small Box','size': 2},
+  {'name': 'Medium Box','size': 3},
+  {'name': 'Large Box','size': 4},
 ];
 
 List busPackages = [
-  'Large Box'
+  {'name': 'Medium Box','size': 3},
+  {'name': 'Large Box','size': 4},
 ];
 
 List truckPackages = [
-  'Covered 5TONS',
-  'Open 5TONS',
-  'Covered 10TONS',
-  'Open 10TONS',
-  'Covered 20TONS',
-  'Flatbed 20FT',
-  'Open 20TONS',
-  'Covered 30TONS',
-  'Open 30TONS',
-  'Tipper 30TONS',
-  'BOX 30TONS',
-  'Covered 40TONS',
-  'Open 40TONS',
-  'Flatbed 40FT',
-  'Covered 50TONS',
-  'Open 50TONS',
-  'Covered 60TONS',
-  'Open 60TONS',
-  'Tanker 33000 LITRES',
-  'Tanker 45000 LITRES'
+  {'name': 'Covered 5TONS','size': 5},
+  {'name': 'Open 5TONS','size': 6},
+  {'name': 'Covered 10TONS','size': 7},
+  {'name': 'Open 10TONS','size': 8},
+  {'name': 'Covered 20TONS','size': 9},
+  {'name': 'Flatbed 20FT','size': 10},
+  {'name': 'Open 20TONS','size': 11},
+  {'name': 'Covered 30TONS','size': 12},
+  {'name': 'Open 30TONS','size': 13},
+  {'name': 'Tipper 30TONS','size': 14},
+  {'name': 'BOX 30TONS','size': 15},
+  {'name': 'Covered 40TONS','size': 16},
+  {'name': 'Open 40TONS','size': 17},
+  {'name': 'Flatbed 40FT','size': 18},
+  {'name': 'Covered 50TONS','size': 19},
+  {'name': 'Open 50TONS','size': 20},
+  {'name': 'Covered 60TONS','size': 21},
+  {'name': 'Open 60TONS','size': 22},
+  {'name': 'Tanker 33000 LITRES','size': 23},
+  {'name': 'Tanker 45000 LITRES','size': 24},
 ];
 
 class Utils {

@@ -32,9 +32,9 @@ class _ProfilePageState extends State<ProfilePage> {
     var userProvider = Provider.of<UserProvider>(context, listen: false);
         setState(() {
           mobileController.text = '+2348145350249';
-          emailController.text = userProvider.email;
-          firstnameController.text = userProvider.name;
-          lastnameController.text = userProvider.surname;
+          emailController.text = userProvider.currentUser.emailAddress;
+          firstnameController.text = userProvider.currentUser.name;
+          lastnameController.text = userProvider.currentUser.surname;
         });
 
 }
@@ -90,7 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 CircleAvatar(
                                   radius: 50,
                                   backgroundImage:
-                                      AssetImage('assets/images/verigo_name.png'),
+                                      AssetImage('assets/images/profilepic.jpg'),
                                 ),
                                 Align(
                                   alignment: Alignment.bottomRight,

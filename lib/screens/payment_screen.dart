@@ -5,8 +5,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:verigo/constants.dart';
 import 'package:verigo/models/card_model.dart';
+import 'package:verigo/providers/booking_provider.dart';
 import 'package:verigo/providers/card_provider.dart';
 import 'package:verigo/providers/state_provider.dart';
+import 'package:verigo/providers/user_provider.dart';
 import 'package:verigo/screens/after_payment_screen.dart';
 
 import 'package:verigo/screens/new_card_screen.dart';
@@ -27,9 +29,10 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   PageController pageController;
-  double pageHeight ;
+  double pageHeight;
 
-  switchPage(int index) {
+  switchPage(int index) async {
+    await Future.delayed(Duration(milliseconds: 100));
     setState(() {
       pageController.animateToPage(index,
           duration: Duration(milliseconds: 300), curve: Curves.fastOutSlowIn);
@@ -37,10 +40,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   setPageHeight(double height) {
-    if(mounted )
-    setState(() {
-      pageHeight = height;
-    });
+    if (mounted)
+      setState(() {
+        pageHeight = height;
+      });
   }
 
   @override
@@ -50,12 +53,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
     pageController = PageController();
     var stateProvider = Provider.of<StateProvider>(context, listen: false);
     stateProvider.changeSelectedPayment('E-Wallet');
-
   }
 
   @override
   Widget build(BuildContext context) {
     String paymentMethod = Provider.of<StateProvider>(context).selectedPayment;
+    var booking = Provider.of<BookingProvider>(context);
     return Scaffold(
       backgroundColor: Color(0xfff6f6f6),
       appBar: appBar(
@@ -71,7 +74,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 48),
             child: Column(
-
               children: [
                 Row(
                   children: [
@@ -87,7 +89,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         },
                       ),
                     ),
-                    SizedBox(width: 20,),
+                    SizedBox(
+                      width: 20,
+                    ),
                     Expanded(
                       child: PaymentMethod(
                         icon: Icon(
@@ -103,7 +107,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     ),
                   ],
                 ),
-SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
                 Row(
                   children: [
                     Expanded(
@@ -118,7 +124,9 @@ SizedBox(height: 20,),
                         },
                       ),
                     ),
-                    SizedBox(width: 20,),
+                    SizedBox(
+                      width: 20,
+                    ),
                     Expanded(
                       child: PaymentMethod(
                         icon: Image(
@@ -133,7 +141,6 @@ SizedBox(height: 20,),
                     ),
                   ],
                 ),
-
               ],
             ),
           ),
@@ -144,21 +151,32 @@ SizedBox(height: 20,),
             height: pageHeight,
             child: ExpandablePageView(
               pageController: pageController,
-
               physics: NeverScrollableScrollPhysics(),
               children: [
-                SizeReportingWidget(child: PaymentOne(), onSizeChange: (size) {
-                  setPageHeight(size.height);
-                },),
-                SizeReportingWidget(child: PaymentTwo(), onSizeChange: (size) {
-                  setPageHeight(size.height);
-                },),
-                SizeReportingWidget(child: PaymentThree(), onSizeChange: (size) {
-                  setPageHeight(size.height);
-                },),
-                SizeReportingWidget(child: PaymentThree(), onSizeChange: (size) {
-                  setPageHeight(size.height);
-                },),
+                SizeReportingWidget(
+                  child: PaymentOne(),
+                  onSizeChange: (size) {
+                    setPageHeight(size.height);
+                  },
+                ),
+                SizeReportingWidget(
+                  child: PaymentTwo(),
+                  onSizeChange: (size) {
+                    setPageHeight(size.height);
+                  },
+                ),
+                SizeReportingWidget(
+                  child: PaymentThree(),
+                  onSizeChange: (size) {
+                    setPageHeight(size.height);
+                  },
+                ),
+                SizeReportingWidget(
+                  child: PaymentThree(),
+                  onSizeChange: (size) {
+                    setPageHeight(size.height);
+                  },
+                ),
               ],
             ),
           ),
@@ -169,20 +187,20 @@ SizedBox(height: 20,),
                 children: [
                   PaymentDetail(
                     title: 'Service Fee',
-                    price: '4000',
+                    price: '${booking.serviceFee}',
                   ),
                   PaymentDetail(
                     title: 'Verisure (Premium Protection)',
-                    price: '500',
+                    price: '${booking.veriSure}'
                   ),
                   PaymentDetail(
                     title: 'Discount',
-                    price: '1000',
+                    price: '${booking.couponValue?? '0.00'}',
                     discount: true,
                   ),
                   PaymentDetail(
                     title: 'VAT (7.5%)',
-                    price: '1000',
+                    price: '100',
                   ),
                   Padding(
                     padding: const EdgeInsets.only(
@@ -205,7 +223,7 @@ SizedBox(height: 20,),
                                       fontSize: 23),
                             ),
                             Text(
-                              'N3500',
+                              'N${booking.serviceProvider.total}',
                               style: Theme.of(context)
                                   .textTheme
                                   .headline3
@@ -267,11 +285,15 @@ SizedBox(height: 20,),
                             : 'Done',
                     onPressed: () {
                       Navigator.of(context).popUntil((route) => route.isFirst);
-                      pushPage(context,
-                      AfterPaymentScreen(
-                                paymentComplete:  paymentMethod == 'E-Wallet' || paymentMethod == 'Card'? true: false,
-                                trackingId: '47498285837',
-                              ));
+                      pushPage(
+                          context,
+                          AfterPaymentScreen(
+                            paymentComplete: paymentMethod == 'E-Wallet' ||
+                                    paymentMethod == 'Card'
+                                ? true
+                                : false,
+                            trackingId: '47498285837',
+                          ));
                     },
                   ),
                 )
@@ -301,11 +323,10 @@ class PaymentDetail extends StatelessWidget {
         top: 24,
       ),
       child: Column(
-crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
             children: [
               Expanded(
                 child: Text(
@@ -316,7 +337,9 @@ crossAxisAlignment: CrossAxisAlignment.start,
                       .copyWith(fontWeight: FontWeight.w500),
                 ),
               ),
-              SizedBox(width: 20,),
+              SizedBox(
+                width: 20,
+              ),
               Text(
                 discount ? "- N$price" : "N$price",
                 style: Theme.of(context)
@@ -358,7 +381,6 @@ class PaymentMethod extends StatelessWidget {
         onPressed();
       },
       child: FloatingContainer(
-
         border: title == selectedPayment,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -389,6 +411,7 @@ class PaymentMethod extends StatelessWidget {
 class PaymentOne extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var userProvider = Provider.of<UserProvider>(context);
     return ListView(
       physics: NeverScrollableScrollPhysics(),
       shrinkWrap: true,
@@ -400,11 +423,13 @@ class PaymentOne extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
           child: GestureDetector(
             onTap: () {
-              pushPage(context, WalletScreen(walletOption: false,));
+              pushPage(
+                  context,
+                  WalletScreen(
+                    walletOption: false,
+                  ));
             },
             child: FloatingContainer(
-
-
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -415,8 +440,8 @@ class PaymentOne extends StatelessWidget {
                             width: 50,
                             decoration: BoxDecoration(
                                 image: DecorationImage(
-                                    image: AssetImage(
-                                        'assets/images/logo.png')))),
+                                    image:
+                                        AssetImage('assets/images/logo.png')))),
                         SizedBox(width: 20),
                         Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,27 +451,29 @@ class PaymentOne extends StatelessWidget {
                                 style: Theme.of(context)
                                     .textTheme
                                     .headline3
-                                    .copyWith(color: Theme.of(context).primaryColor),
+                                    .copyWith(
+                                        color: Theme.of(context).primaryColor),
                               ),
                               SizedBox(height: 5),
                               FittedBox(
                                 child: Text(
-                                  "N60,000.75",
+                                  "N${userProvider.currentUser.walletBalance}",
                                   style: Theme.of(context)
                                       .textTheme
                                       .button
                                       .copyWith(
-                                    color: Theme.of(context).primaryColor,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                        color: Theme.of(context).primaryColor,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                 ),
                               ),
                             ]),
                       ],
                     ),
-                    SizedBox(width: 10,),
+                    SizedBox(
+                      width: 10,
+                    ),
                     Icon(
-
                       Icons.add,
                       color: Theme.of(context).primaryColor,
                       size: 30,
@@ -455,7 +482,6 @@ class PaymentOne extends StatelessWidget {
             ),
           ),
         ),
-
       ],
     );
   }
@@ -466,39 +492,38 @@ class PaymentTwo extends StatelessWidget {
   Widget build(BuildContext context) {
     var cardModel = Provider.of<CreditCardProvider>(context);
     return ListView(
-      shrinkWrap: true,
+        shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
         children: [
-      SizedBox(
-        height: 20,
-      ),
-      ListView.builder(
-          physics: NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: cardModel.creditCardList.length,
-          itemBuilder: (context, index) {
-            UserCreditCard card = cardModel.creditCardList[index];
-            return CreditCard(
-              cardHolder: card.cardHolder,
-              cardIssuer: card.cardIssuer,
-              cardNumber: card.cardNumber,
-              cvv: card.cvv,
-              expiryDate: card.expiryDate,
-              index: index,
-
-            );
-          }),
-      SizedBox(height: 15),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 10),
-        child: DottedButton(
-          title: '+ Add a new card',
-          onPressed: () {
-            pushPage(context, NewCardScreen());
-          },
-        ),
-      )
-    ]);
+          SizedBox(
+            height: 20,
+          ),
+          ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: cardModel.creditCardList.length,
+              itemBuilder: (context, index) {
+                UserCreditCard card = cardModel.creditCardList[index];
+                return CreditCard(
+                  cardHolder: card.cardHolder,
+                  cardIssuer: card.cardIssuer,
+                  cardNumber: card.cardNumber,
+                  cvv: card.cvv,
+                  expiryDate: card.expiryDate,
+                  index: index,
+                );
+              }),
+          SizedBox(height: 15),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 10),
+            child: DottedButton(
+              title: '+ Add a new card',
+              onPressed: () {
+                pushPage(context, NewCardScreen());
+              },
+            ),
+          )
+        ]);
   }
 }
 
@@ -542,5 +567,3 @@ class PaymentThree extends StatelessWidget {
     );
   }
 }
-
-

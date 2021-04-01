@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_paystack/flutter_paystack.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:provider/provider.dart';
 import 'package:verigo/pages/home_page.dart';
@@ -22,6 +23,8 @@ PageController _controller = PageController();
   void initState() {
     // TODO: implement initState
     super.initState();
+
+
     var stateProvider = Provider.of<StateProvider>(context, listen: false);
     // stateProvider.initiateHomePageController();
    stateProvider.addListener(() {

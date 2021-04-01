@@ -13,7 +13,7 @@ class VerificationScreen extends StatefulWidget {
   final String header;
   final String info;
   final ValueChanged<String> onSubmitted;
-  final Future<void> onResendCode;
+  final Function onResendCode;
 
   const VerificationScreen(
       {Key key, this.header, this.info, this.onSubmitted, this.onResendCode})
@@ -102,7 +102,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 onTap: () async {
 
                   if(!showCountdown) {
-              await   widget.onResendCode;
+                 widget.onResendCode();
                    if(canSendCode) {
                      setState(() {
                    showCountdown = true;
@@ -125,7 +125,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 ),
               ),
               SizedBox(width: 5,),
-        if(showCountdown  )    Countdown(seconds: 5,
+        if(showCountdown  )    Countdown(seconds: 60,
                   controller: countdownController,
                   onFinished: () {
 setState(() {

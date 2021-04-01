@@ -88,9 +88,7 @@ notifyListeners();
       Polyline polyline = Polyline(
           width: 5,
           polylineId: PolylineId("poly"),
-          patterns: [
-            PatternItem.dash(10), PatternItem.gap(10)
-          ],
+
           color: Color(0xff7A4B9D),
 
           points: polylineCoordinates);

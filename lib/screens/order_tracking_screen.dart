@@ -83,17 +83,19 @@ location = Location();
       location.onLocationChanged.listen((event) async {
         await   map.setSourceLocation(LatLng(event.latitude, event.longitude));
         map.setMapPins( mapController, event.heading);
-        if(followRider) {
-          setState(() {
-            mapController.animateCamera(
-                CameraUpdate.newCameraPosition(
-                    CameraPosition(
-                        target: LatLng(event.latitude, event.longitude),
-                        bearing: event.heading  ,
+        if(mounted) {
+          if (followRider) {
+            setState(() {
+              mapController.animateCamera(
+                  CameraUpdate.newCameraPosition(
+                      CameraPosition(
+                          target: LatLng(event.latitude, event.longitude),
+                          bearing: 30,
 
-                        tilt: 0,
-                        zoom: 16)));
-          });
+                          tilt: 0,
+                          zoom: 16)));
+            });
+          }
         }
       });
 
@@ -190,62 +192,62 @@ location = Location();
                           polylines: map.polylines,
                         ),
                       ),
-                      // if (showRiderButton)
-                      //   AnimatedAlign(
-                      //     duration: Duration(milliseconds: 500),
-                      //     alignment: Alignment.bottomRight,
-                      //     child: Padding(
-                      //       padding: const EdgeInsets.all(8.0),
-                      //       child: AnimatedContainer(
-                      //         duration: Duration(seconds: 1),
-                      //         child: RaisedButton(
-                      //             color: Theme.of(context).primaryColor,
-                      //             shape: RoundedRectangleBorder(
-                      //               borderRadius: BorderRadius.circular(20),
-                      //             ),
-                      //             textColor: Colors.white,
-                      //             child: FittedBox(
-                      //               child: Row(
-                      //                 crossAxisAlignment:
-                      //                     CrossAxisAlignment.center,
-                      //                 mainAxisAlignment:
-                      //                     MainAxisAlignment.center,
-                      //                 children: [
-                      //                   Icon(
-                      //                     Icons.my_location,
-                      //                     size: 18,
-                      //                   ),
-                      //                   SizedBox(
-                      //                     width: 5,
-                      //                   ),
-                      //                   Text('Rider')
-                      //                 ],
-                      //               ),
-                      //             ),
-                      //             onPressed: () {
-                      //               setState(() {
-                      //                 followRider = true;
-                      //                 showRiderButton= false;
-                      //                 map.changeCameraPosition(  CameraPosition(
-                      //                     target: LatLng(
-                      //                         42.7477863, -71.1699932),
-                      //                     bearing: 30,
-                      //                     tilt: 0,
-                      //                     zoom: 13));
-                      //                 mapController.animateCamera(
-                      //                     CameraUpdate.newCameraPosition(
-                      //                         CameraPosition(
-                      //                             target: map.sourceLocation,
-                      //
-                      //                             bearing: 30,
-                      //                             tilt: 10,
-                      //                             zoom: 16)));
-                      //               });
-                      //
-                      //             }),
-                      //       ),
-                      //     ),
-                      //   )
+                      if (showRiderButton)
+                        AnimatedAlign(
+                          duration: Duration(milliseconds: 500),
+                          alignment: Alignment.bottomRight,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: AnimatedContainer(
+                              duration: Duration(seconds: 1),
+                              child: RaisedButton(
+                                  color: Theme.of(context).primaryColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  textColor: Colors.white,
+                                  child: FittedBox(
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.my_location,
+                                          size: 18,
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Text('Rider')
+                                      ],
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      followRider = true;
+                                      showRiderButton= false;
+                                      map.changeCameraPosition(  CameraPosition(
+                                          target: LatLng(
+                                              42.7477863, -71.1699932),
+                                          bearing: 30,
+                                          tilt: 0,
+                                          zoom: 13));
+                                      mapController.animateCamera(
+                                          CameraUpdate.newCameraPosition(
+                                              CameraPosition(
+                                                  target: map.sourceLocation,
+
+                                                  bearing: 30,
+                                                  tilt: 10,
+                                                  zoom: 16)));
+                                    });
+
+                                  }),
+                            ),
+                          ),
+                        )
                     ],
                   ),
                 ),

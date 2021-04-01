@@ -6,7 +6,9 @@ import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:verigo/models/card_model.dart';
 import 'package:verigo/providers/card_provider.dart';
+import 'package:verigo/providers/payment_provider.dart';
 import 'package:verigo/providers/state_provider.dart';
+import 'package:verigo/providers/user_provider.dart';
 import 'package:verigo/screens/transaction_history_screen.dart';
 import 'package:verigo/widgets/appbar.dart';
 import 'package:verigo/widgets/buttons.dart';
@@ -65,91 +67,96 @@ class _WalletScreenState extends State<WalletScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xfff6f6f6),
-      appBar: appBar(context,
-          title: 'Wallet',
-          blackTitle: true,
-          centerTitle: false,
-          backgroundColor: Colors.transparent,
-          brightness: Brightness.light,
-          actions: [
-            IconButton(
-              icon: Icon(
-                Icons.history,
-                color: Theme.of(context).primaryColor,
-              ),
-              onPressed: () {
-                pushPage(context, TransactionHistoryScreen());
-              },
-            )
-          ]),
-      body: Column(children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-          child: WalletCard(),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      walletOption = true;
-                    });
-                    pageController.animateToPage(0,
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.fastOutSlowIn);
-                  },
-                  child: FloatingContainer(
-                    height: 50,
-                    border: walletOption,
-                    child: Center(
-                      child: Text('Transfer',
-                          style: Theme.of(context)
-                              .textTheme
-                              .button
-                              .copyWith(color: Theme.of(context).primaryColor)),
-                    ),
-                  ),
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(new FocusNode());
+      },
+      child: Scaffold(
+        backgroundColor: Color(0xfff6f6f6),
+        appBar: appBar(context,
+            title: 'Wallet',
+            blackTitle: true,
+            centerTitle: false,
+            backgroundColor: Colors.transparent,
+            brightness: Brightness.light,
+            actions: [
+              IconButton(
+                icon: Icon(
+                  Icons.history,
+                  color: Theme.of(context).primaryColor,
                 ),
-              ),
-              SizedBox(width: 20),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      walletOption = false;
-                    });
-                    pageController.animateToPage(1,
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.fastOutSlowIn);
-                  },
-                  child: FloatingContainer(
-                    height: 50,
-                    border: !walletOption,
-                    child: Center(
-                      child: Text('Fund Wallet',
-                          style: Theme.of(context)
-                              .textTheme
-                              .button
-                              .copyWith(color: Theme.of(context).primaryColor)),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+                onPressed: () {
+                  pushPage(context, TransactionHistoryScreen());
+                },
+              )
+            ]),
+        body: Column(children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+            child: WalletCard(),
           ),
-        ),
-        Expanded(
-            child: PageView(
-          controller: pageController,
-          // physics: NeverScrollableScrollPhysics(),
-          children: [Transfer(), FundWallet()],
-        )),
-      ]),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        walletOption = true;
+                      });
+                      pageController.animateToPage(0,
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.fastOutSlowIn);
+                    },
+                    child: FloatingContainer(
+                      height: 50,
+                      border: walletOption,
+                      child: Center(
+                        child: Text('Transfer',
+                            style: Theme.of(context)
+                                .textTheme
+                                .button
+                                .copyWith(color: Theme.of(context).primaryColor)),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 20),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        walletOption = false;
+                      });
+                      pageController.animateToPage(1,
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.fastOutSlowIn);
+                    },
+                    child: FloatingContainer(
+                      height: 50,
+                      border: !walletOption,
+                      child: Center(
+                        child: Text('Fund Wallet',
+                            style: Theme.of(context)
+                                .textTheme
+                                .button
+                                .copyWith(color: Theme.of(context).primaryColor)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+              child: PageView(
+            controller: pageController,
+            // physics: NeverScrollableScrollPhysics(),
+            children: [Transfer(), FundWallet()],
+          )),
+        ]),
+      ),
     );
   }
 }
@@ -171,7 +178,7 @@ class Transfer extends StatelessWidget {
         ),
         SizedBox(height: 15),
         TextField(
-          keyboardType: TextInputType.number,
+
           inputFormatters: [MoneyInputFormatter()],
           decoration: fieldDecoration.copyWith(
             hintText: 'Amount',
@@ -200,10 +207,37 @@ class Transfer extends StatelessWidget {
   }
 }
 
-class FundWallet extends StatelessWidget {
+class FundWallet extends StatefulWidget {
+
+
+
+  @override
+  _FundWalletState createState() => _FundWalletState();
+}
+
+class _FundWalletState extends State<FundWallet> {
+  TextEditingController controller = TextEditingController();
+
+  double amount = 0.00;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    controller.addListener(() {
+      setState(() {
+        String finalInput = controller.text.replaceAll('.00', '').replaceAll(',', '');
+        amount = double.parse(finalInput);
+
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    bool isSelected = Provider.of<StateProvider>(context).selectedCard != null;
+    var payment = Provider.of<PaymentProvider>(context);
+    var userProvider = Provider.of<UserProvider>(context);
+    // bool isSelected = Provider.of<StateProvider>(context).selectedCard != null;
     var cardModel = Provider.of<CreditCardProvider>(context);
     return ListView(
       children: [
@@ -225,37 +259,38 @@ cardHolder: card.cardHolder,
           );
         }),
         SizedBox(height: 15),
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: GestureDetector(
-              onTap: () {
-                pushPage(context, NewCardScreen());
-              },
-              child: DottedBorder(
-                dashPattern: [3, 5],
-                borderType: BorderType.RRect,
-                color: Theme.of(context).primaryColor,
-                radius: const Radius.circular(15),
-                child: Container(
-                  height: 50,
-                  width: 150,
-                  child: Center(
-                    child: Text("+ Add a new card",
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                        )),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: 20),
+        // Center(
+        //   child: Padding(
+        //     padding: const EdgeInsets.symmetric(horizontal: 16),
+        //     child: GestureDetector(
+        //       onTap: () {
+        //         pushPage(context, NewCardScreen());
+        //       },
+        //       child: DottedBorder(
+        //         dashPattern: [3, 5],
+        //         borderType: BorderType.RRect,
+        //         color: Theme.of(context).primaryColor,
+        //         radius: const Radius.circular(15),
+        //         child: Container(
+        //           height: 50,
+        //           width: 150,
+        //           child: Center(
+        //             child: Text("+ Add a new card",
+        //                 style: TextStyle(
+        //                   color: Theme.of(context).primaryColor,
+        //                 )),
+        //           ),
+        //         ),
+        //       ),
+        //     ),
+        //   ),
+        // ),
+        // SizedBox(height: 20),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: TextField(
-            keyboardType: TextInputType.number,
+controller: controller,
+            keyboardType: TextInputType.numberWithOptions(signed: true, decimal: true),
             inputFormatters: [MoneyInputFormatter()],
             decoration: fieldDecoration.copyWith(
               hintText: 'Amount',
@@ -267,8 +302,11 @@ cardHolder: card.cardHolder,
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 56.0),
           child: RoundedButton(
-            active: isSelected,
+            active: amount >= 500,
             title: 'Fund',
+            onPressed: () {
+              payment.fundWallet(context, amount.toInt(), userProvider.currentUser.emailAddress);
+            },
           ),
         ),
         SizedBox(height: 30),

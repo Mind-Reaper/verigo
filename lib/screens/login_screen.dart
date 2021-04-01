@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:verigo/models/user_model.dart';
 import 'package:verigo/providers/authentication_provider.dart';
 import 'package:verigo/providers/user_provider.dart';
 import 'package:verigo/screens/reset_screen.dart';
@@ -20,9 +21,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
-  String emailError ;
-  String passwordError;
+  String emailError = '';
+  String passwordError = '';
 
   IconData passIcon = Icons.visibility;
   bool obscureText = true;
@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
     email.addListener(() {
       setState(() {
         if (!RegExp(
-            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
             .hasMatch(email.text)) {
           emailError = 'Invalid email address';
         } else {
@@ -46,13 +46,10 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       });
       activateButton();
-
     });
     password.addListener(() {
       setState(() {
-        if (password.text
-            .trim()
-            .length < 8  ) {
+        if (password.text.trim().length < 8) {
           passwordError = 'Password is too short or too long';
         } else {
           passwordError = null;
@@ -61,12 +58,11 @@ class _LoginScreenState extends State<LoginScreen> {
       activateButton();
     });
   }
+
   bool buttonActive = false;
 
   activateButton() {
-    if( emailError == null && passwordError == null
-
-    ) {
+    if (emailError == null && passwordError == null) {
       setState(() {
         buttonActive = true;
       });
@@ -75,38 +71,47 @@ class _LoginScreenState extends State<LoginScreen> {
         buttonActive = false;
       });
     }
-
   }
-
 
   signIn() async {
-    var authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+    var authProvider =
+        Provider.of<AuthenticationProvider>(context, listen: false);
     var userProvider = Provider.of<UserProvider>(context, listen: false);
 
- await   authProvider.tokenAuth(email.text, password.text).then((value) async {
-   if(value.length > 5) {
-     await authProvider.getCurrentUser().then((value) {
-       if(value != null) {
-         userProvider.setUser(value);
-         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-             builder: (context) => HomeScreen()
-         ),
-                 (Route<dynamic> route) => false
-         );
-         EasyLoading.dismiss();
-       } else {
-         EasyLoading.showError('Sign In Failed', duration: Duration(seconds: 3));
+    await authProvider.tokenAuth(email.text, password.text).then((value) async {
+      if (value.length > 5) {
+        await userProvider.logout();
+        await userProvider.saveUser(User(accessToken: value));
+        EasyLoading.show(status: 'Signing in');
 
-       }
-     });
-   } else {
-     EasyLoading.showError("Email/Password Incorrect", duration: Duration(seconds: 3));
+        await authProvider.getCurrentUser(context).then((userMap) async {
+          if (userMap != null) {
 
-   }
- });
+            await userProvider.updateUser(User(
+              name: userMap['name'],
+              surname: userMap['surname'],
+              emailAddress: userMap['emailAddress'],
+              id: userMap['id'],
+              walletBalance: userMap['wallatBalance'],
+              verigoNumber: userMap['affiliateCode'],
+            ));
 
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen()),
+                (Route<dynamic> route) => false);
+            EasyLoading.dismiss();
+          } else {
+            EasyLoading.showError('Sign In Failed',
+                duration: Duration(seconds: 3));
+          }
+        });
+      } else {
+        EasyLoading.showError("Email/Password Incorrect",
+            duration: Duration(seconds: 3));
+      }
+    });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -144,14 +149,14 @@ class _LoginScreenState extends State<LoginScreen> {
             child: ListView(
               children: [
                 TextField(
-                controller: email,
+                  controller: email,
                   keyboardType: TextInputType.emailAddress,
                   decoration: fieldDecoration.copyWith(errorText: emailError),
                 ),
                 SizedBox(height: 10),
                 TextField(
                   obscureText: obscureText,
-                 controller: password,
+                  controller: password,
                   decoration: fieldDecoration.copyWith(
                     errorText: passwordError,
                     hintText: 'Password',
@@ -178,11 +183,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 RoundedButton(
                     title: 'Sign In',
                     active: buttonActive,
-
                     onPressed: () async {
-
-signIn();
-
+                      signIn();
                     }),
                 SizedBox(height: 20),
                 GestureDetector(
@@ -191,7 +193,8 @@ signIn();
                   },
                   child: Center(
                     child: Text('Forgot Password?',
-                        style: TextStyle(color: Color(0xff414141), fontSize: 18)),
+                        style:
+                            TextStyle(color: Color(0xff414141), fontSize: 18)),
                   ),
                 ),
                 SizedBox(height: 20),
