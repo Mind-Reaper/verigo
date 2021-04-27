@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +30,7 @@ class GetEstimateScreen extends StatefulWidget {
 }
 
 class _GetEstimateScreenState extends State<GetEstimateScreen> {
-  bool intra = true;
+  bool intra = false;
   String selectedState = 'Select Delivery State';
   IconData carrierIcon = FontAwesomeIcons.motorcycle;
   Map selectedCarrier;
@@ -44,9 +47,14 @@ class _GetEstimateScreenState extends State<GetEstimateScreen> {
     super.initState();
     var booking = Provider.of<BookingProvider>(context, listen: false);
     selectedCarrier = carrier[0];
-
-    booking.clearBooking();
+    Future.microtask(() =>
+    booking.clearBooking());
     packages = [];
+    setState(() {
+      packageWidgets.add('packages');
+    });
+    Future.microtask(() =>
+    booking.changeEstimated(false));
   }
 
   @override
@@ -72,7 +80,7 @@ class _GetEstimateScreenState extends State<GetEstimateScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    intra ? 'Intrastate' : 'Interstate',
+                    intra ? 'Intra-city' : 'Inter-city',
                     style: Theme.of(context).textTheme.headline2.copyWith(
                           fontSize: 20,
                           color: intra
@@ -82,11 +90,16 @@ class _GetEstimateScreenState extends State<GetEstimateScreen> {
                   ),
                   SizedBox(width: 5),
                   CupertinoSwitch(
-                    value: intra,
+                    value: false,
                     onChanged: (value) {
-                      setState(() {
-                        intra = value;
-                      });
+                      showOkAlertDialog(context: context,
+                        title: 'Coming Soon.',
+                        message: 'This service is not currently available.'
+
+                      );
+                      // setState(() {
+                      //   intra = value;
+                      // });
                     },
                     activeColor: Theme.of(context).primaryColor,
                   ),
@@ -94,13 +107,13 @@ class _GetEstimateScreenState extends State<GetEstimateScreen> {
               ),
             ),
             SizedBox(height: 20),
-            if (!intra)
+            if (intra)
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                 child: Text('Select drop-off state'),
               ),
-            if (!intra)
+            if (intra)
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
@@ -301,6 +314,10 @@ pickupAddress: result.formattedAddress,
                                       }
                                       packages = [];
                                       packageWidgets = [];
+
+                                      //   packageWidgets.add('packages');
+                                      //
+                                      // booking.changeEstimated(false);
                                     });
                                   },
                                   itemBuilder: (context, index) {
@@ -352,10 +369,12 @@ pickupAddress: result.formattedAddress,
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      setState(() {
-                        packageWidgets.add('packages');
-                      });
-                      booking.changeEstimated(false);
+                      if(packageWidgets.length != selectedPackageList.length) {
+                        setState(() {
+                          packageWidgets.add('packages');
+                        });
+                        booking.changeEstimated(false);
+                      }
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -365,7 +384,7 @@ pickupAddress: result.formattedAddress,
                             ? 'Add Another Package'
                             : 'Add A Package',
                         style: TextStyle(
-                            color: Theme.of(context).primaryColor,
+                            color: packageWidgets.length == selectedPackageList.length? Colors.grey:Theme.of(context).primaryColor,
                             fontSize: 20,
                             fontWeight: FontWeight.w400),
                       ),
@@ -381,6 +400,7 @@ pickupAddress: result.formattedAddress,
                       if (packageWidgets.length > 0) {
                         print(packageWidgets.length);
                         setState(() {
+
                           packages.removeAt(packages.length - 1);
                           packageWidgets.removeAt(packageWidgets.length - 1);
                         });
@@ -406,7 +426,8 @@ pickupAddress: result.formattedAddress,
               ],
             ),
 
-            Center(
+            booking.minimumEstimation != null && booking.maximumEstimation!= null
+                ?     Center(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: DottedBorder(
@@ -434,15 +455,15 @@ pickupAddress: result.formattedAddress,
                   ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: DottedBorder(
-                  padding: EdgeInsets.zero,
-                  color: Theme.of(context).primaryColor,
-                  dashPattern: [2, 6],
-                  child: Container()),
-            ),
+            ) : Container(),
+            // Padding(
+            //   padding: const EdgeInsets.all(16.0),
+            //   child: DottedBorder(
+            //       padding: EdgeInsets.zero,
+            //       color: Theme.of(context).primaryColor,
+            //       dashPattern: [2, 6],
+            //       child: Container()),
+            // ),
             // Padding(
             //   padding: const EdgeInsets.symmetric(horizontal: 16),
             //   child: Row(
@@ -464,8 +485,8 @@ pickupAddress: result.formattedAddress,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: RoundedButton(
                 title: booking.estimated ? 'Book Now' : 'Get Estimate',
-                active: pickupController.text.length > 10 &&
-                        pickupController.text.length > 10 != null &&
+                active: pickupController.text.length > 2 &&
+                        dropoffController.text.length > 2  &&
                         packages.length >= 1
 
                     ? true
@@ -505,7 +526,7 @@ class Package extends StatefulWidget {
 }
 
 class _PackageState extends State<Package> {
-  int selectedBoxNumber = 0;
+  int selectedBoxNumber = 1;
   Map selectedPackage ;
 
   updatePackages(int index) {
@@ -534,7 +555,13 @@ class _PackageState extends State<Package> {
     super.initState();
     setState(() {
       selectedPackage = widget.packageList[0];
+      print(selectedPackage);
+      print('hey');
     });
+    Timer(Duration(milliseconds: 500), () {
+      updatePackages(packages.length);
+    });
+
   }
 
   @override
@@ -570,6 +597,7 @@ class _PackageState extends State<Package> {
                         InkWell(
                           // splashColor: Theme.of(context).primaryColor,
                           onTap: () {
+
                             showCupertinoModalPopup(
                                 context: context,
                                 builder: (context) {

@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:verigo/pages/order_page.dart';
+import 'package:verigo/providers/google_map_provider.dart';
 import 'package:verigo/providers/state_provider.dart';
 import 'package:verigo/providers/user_provider.dart';
 import 'package:verigo/screens/get_estimate_screen.dart';
@@ -21,6 +23,7 @@ class _HomePageState extends State<HomePage> {
 
   buildHomePage() {
     var stateProvider = Provider.of<StateProvider>(context);
+    var map = Provider.of<GoogleMapProvider>(context);
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
@@ -31,10 +34,54 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Expanded(
                     child: TextField(
-                    onSubmitted: (value) {
-                      if(value.length > 5) {
-                        pushPage(context, TrackingScreen());
+                    onSubmitted: (reference) {
+                      if(reference.isNotEmpty) {
+                        map.trackBooking(context, reference).then((order) {
+                          if(order != null) {
+                            if (order.length == 1) {
+                              pushPage(context, TrackingScreen(reference,
+                                orderStage: order.orderPlacedStage,
+                                orderPlacedDate: order.orderPlacedDate,
+                                dispatchedDate: order.dispatchDate,
+                                enrouteDate: order.enrouteDate,
+                                deliveredDate: order.deliveredDate,
+                                notes: order.orderPlacedNotes,
+                              ),);
+                            }
+                            if(order.length == 2) {
+                              pushPage(context, TrackingScreen(reference,
+                                orderStage: order.dispatchStage,
+                                orderPlacedDate: order.orderPlacedDate,
+                                dispatchedDate: order.dispatchDate,
+                                enrouteDate: order.enrouteDate,
+                                deliveredDate: order.deliveredDate,
+                                notes: order.dispatchNotes,
+                              ),);
+                            }
+                            if(order.length == 3) {
+                              pushPage(context, TrackingScreen(reference,
+                                orderStage: order.enrouteStage,
+                                orderPlacedDate: order.orderPlacedDate,
+                                dispatchedDate: order.dispatchDate,
+                                enrouteDate: order.enrouteDate,
+                                deliveredDate: order.deliveredDate,
+                                notes: order.enrouteNotes,
+                              ),);
+                            }
+                            if(order.length == 4) {
+                              pushPage(context, TrackingScreen(reference,
+                                orderStage: order.deliveredStage,
+                                orderPlacedDate: order.orderPlacedDate,
+                                dispatchedDate: order.dispatchDate,
+                                enrouteDate: order.enrouteDate,
+                                deliveredDate: order.deliveredDate,
+                                notes: order.deliveredNotes,
+                              ),);
+                            }
+                          }
+                        });
                       }
+
                     },
                       decoration: fieldDecoration.copyWith(
                         fillColor: Colors.white,
@@ -180,13 +227,18 @@ hintText: "Tracking number",
 
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
-                            height: 55,
-                            width: 55,
-                            child: CircleAvatar(
-                              radius: 30,
-                              backgroundImage:
-                              AssetImage('assets/images/profilepic.jpg'),
+                          GestureDetector(
+                            onTap: () {
+                              stateProvider.changePageIndex(2);
+              },
+                            child: Container(
+                              height: 55,
+                              width: 55,
+                              child: CircleAvatar(
+                                radius: 30,
+                                backgroundImage:
+                                AssetImage('assets/images/profilepic.jpg'),
+                              ),
                             ),
                           ),
                           Expanded(
@@ -228,7 +280,7 @@ hintText: "Tracking number",
                             backgroundColor: Theme.of(context).primaryColor,
                             child: Icon(Icons.notifications_active),
                             onPressed: () {
-                              pushPage(context, NotificationScreen());
+                              pushPage(context, KeepAlivePage(child: NotificationScreen()));
                             },
                           )
                         ])

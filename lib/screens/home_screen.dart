@@ -7,6 +7,8 @@ import 'package:verigo/pages/more_page.dart';
 import 'package:verigo/pages/order_page.dart';
 import 'package:verigo/pages/profile_page.dart';
 import 'package:verigo/providers/card_provider.dart';
+import 'package:verigo/providers/notification_provider.dart';
+import 'package:verigo/providers/order_provider.dart';
 import 'package:verigo/providers/state_provider.dart';
 
 
@@ -26,6 +28,8 @@ PageController _controller = PageController();
 
 
     var stateProvider = Provider.of<StateProvider>(context, listen: false);
+    var orderProvider = Provider.of<OrderProvider>(context, listen: false);
+    var notify = Provider.of<NotificationProvider>(context, listen: false);
     // stateProvider.initiateHomePageController();
    stateProvider.addListener(() {
      if(oldPageIndex != stateProvider.pageIndex)
@@ -33,6 +37,13 @@ PageController _controller = PageController();
          duration: Duration(milliseconds: 200), curve: Curves.fastOutSlowIn);
      oldPageIndex = stateProvider.pageIndex;
 
+   });
+
+   Future.microtask(() {
+     orderProvider.getPending(context);
+     orderProvider.getTransit(context);
+     orderProvider.getCompleted(context);
+     notify.getNotifications(context);
    });
 
     Provider.of<CreditCardProvider>(context, listen: false).getItem();

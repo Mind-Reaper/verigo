@@ -19,7 +19,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
   List<Widget> pages = [
     IntroPage(
         title: 'Rapid Delivery',
-        subtitle: 'Your parcels are delivered as quicky as possible.'),
+        subtitle: 'Your parcels are delivered as quickly as possible.'),
     IntroPage(
         title: 'Monitor your parcel easily',
         subtitle:
@@ -35,84 +35,103 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
     return Material(
       child: Container(
           child: Center(
-        child: Container(
-          decoration: BoxDecoration(
-          image: DecorationImage(
-        colorFilter: ColorFilter.mode(Colors.black26, BlendMode.darken),
-        image: AssetImage(
-          'assets/images/container.jpg',
-        ),
-        fit: BoxFit.cover,
-          )),
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                    // colorFilter: ColorFilter.mode(Colors.black26, BlendMode.darken),
+
+                    image: AssetImage(
+                      'assets/images/container.jpg',
+                    ),
+                    fit: BoxFit.cover,
+                  )),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                    // colorFilter: ColorFilter.mode(Colors.black26, BlendMode.darken),
+
+                    image: AssetImage(
+                      'assets/images/mask.png',
+                    ),
+                    fit: BoxFit.cover,
+                  )),
+            ),
+            Container(
+
 child:    Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 50, bottom: 40),
-                  child: namedLogo(),
-                ),
-                Expanded(
-                  child: Container(
-                    child: PageView.builder(
-                        physics: BouncingScrollPhysics(),
-                        // controller: pageController,
-                        itemCount: 3,
-                        onPageChanged: (page) {
-                          _currentPageNotifier.value = page;
-                        },
-                        itemBuilder: (context, page) {
-                          return pages[page];
-                        }),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: CirclePageIndicator(
-                    currentPageNotifier: _currentPageNotifier,
-                    itemCount: 3,
-                  ),
-                ),
-                Container(
-                    height: 120,
-                    width: double.infinity,
-                    color: Theme.of(context).primaryColor,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        children: [
-                          Text(
-                            "Let's get started",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          Row(children: [
-                            Expanded(
-                                child: RoundedButton(
-                                    title: 'Sign In',
-                                    active: true,
-                                    inverse: true,
-                                    onPressed: () {
-                                      pushPage(context, LoginScreen());
-                                    })),
-                            SizedBox(width: 20),
-                            Expanded(
-                                child: RoundedButton(
-                                    title: 'Sign Up',
-                                    active: true,
-                                    inverse: true,
-                                    onPressed: () {
-                                      pushPage(context, SignupScreen());
-                                    })),
-                          ])
-                        ],
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: 50, bottom: 40),
+                      child: namedLogo(),
+                    ),
+                    Expanded(
+                      child: Container(
+                        child: PageView.builder(
+                            physics: BouncingScrollPhysics(),
+                            // controller: pageController,
+                            itemCount: 3,
+                            onPageChanged: (page) {
+                              _currentPageNotifier.value = page;
+                            },
+                            itemBuilder: (context, page) {
+                              return pages[page];
+                            }),
                       ),
-                    ))
-              ]),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: CirclePageIndicator(
+                        currentPageNotifier: _currentPageNotifier,
+                        itemCount: 3,
+                      ),
+                    ),
+                    Container(
+                        height: 120,
+                        width: double.infinity,
+                        color: Theme.of(context).primaryColor,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            children: [
+                              Text(
+                                "Let's get started",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Row(children: [
+                                Expanded(
+                                    child: RoundedButton(
+                                        title: 'Sign In',
+                                        active: true,
+                                        inverse: true,
+                                        onPressed: () {
+                                          pushPage(context, LoginScreen());
+                                        })),
+                                SizedBox(width: 20),
+                                Expanded(
+                                    child: RoundedButton(
+                                        title: 'Sign Up',
+                                        active: true,
+                                        inverse: true,
+                                        onPressed: () {
+                                          pushPage(context, SignupScreen());
+                                        })),
+                              ])
+                            ],
+                          ),
+                        ))
+                  ]),
+            ),
+          ],
         ),
       )),
     );

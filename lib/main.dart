@@ -16,6 +16,8 @@ import 'package:verigo/models/user_model.dart';
 import 'package:verigo/providers/authentication_provider.dart';
 import 'package:verigo/providers/card_provider.dart';
 import 'package:verigo/providers/google_map_provider.dart';
+import 'package:verigo/providers/notification_provider.dart';
+import 'package:verigo/providers/order_provider.dart';
 import 'package:verigo/providers/payment_provider.dart';
 import 'package:verigo/providers/user_provider.dart';
 import 'package:verigo/screens/home_screen.dart';
@@ -55,6 +57,7 @@ void configLoading() {
         fontWeight: FontWeight.w500,
         letterSpacing: 1.0)
     ..maskType = EasyLoadingMaskType.black
+
     ..infoWidget = Icon(
       FontAwesomeIcons.infoCircle,
       size: 50,
@@ -70,7 +73,7 @@ void configLoading() {
       size: 50,
       color: Colors.white,
     )
-    ..userInteractions = true
+    ..userInteractions = false
     ..toastPosition = EasyLoadingToastPosition.bottom
     ..dismissOnTap = false;
 }
@@ -87,6 +90,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => GoogleMapProvider()),
         ChangeNotifierProvider(create: (context) => BookingProvider()),
         ChangeNotifierProvider(create: (context) => PaymentProvider()),
+        ChangeNotifierProvider(create: (context) => OrderProvider()),
+        ChangeNotifierProvider(create: (context) => NotificationProvider()),
       ],
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle(
@@ -149,6 +154,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    
 
     // Show Splash Screen For Few Seconds
     Timer(Duration(seconds: 1), () async {
@@ -170,8 +176,8 @@ class _SplashScreenState extends State<SplashScreen> {
       } else {
        await authProvider
             .getCurrentUser(context, accessToken: user.accessToken)
-            .then((value) {
-          if (value == null) {
+            .then((userMap) async {
+          if (userMap == null) {
             EasyLoading.showInfo('Session Expired');
             Navigator.pushReplacement(
                 context,
@@ -179,6 +185,16 @@ class _SplashScreenState extends State<SplashScreen> {
                   pageBuilder: (_, __, ___) => IntroductionScreen(),
                 ));
           } else {
+            await userProvider.updateUser(User(
+              name: userMap['name'],
+              surname: userMap['surname'],
+              emailAddress: userMap['emailAddress'],
+              id: userMap['id'],
+              walletBalance: userMap['walletBalance'],
+              phoneNumber: userMap['phoneNumber'],
+              verigoNumber: userMap['affiliateCode'],
+            ));
+
             Navigator.pushReplacement(
                 context,
                 PageRouteBuilder(

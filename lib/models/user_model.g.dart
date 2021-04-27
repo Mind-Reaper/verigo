@@ -17,7 +17,7 @@ class UserAdapter extends TypeAdapter<User> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return User(
-      walletBalance: fields[13] as double,
+      walletBalance: fields[13] as int,
       phoneNumber: fields[10] as String,
       verigoNumber: fields[12] as String,
       accessToken: fields[11] as String,

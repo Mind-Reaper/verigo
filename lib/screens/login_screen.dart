@@ -92,7 +92,8 @@ class _LoginScreenState extends State<LoginScreen> {
               surname: userMap['surname'],
               emailAddress: userMap['emailAddress'],
               id: userMap['id'],
-              walletBalance: userMap['wallatBalance'],
+              walletBalance: userMap['walletBalance'],
+              phoneNumber: userMap['phoneNumber'],
               verigoNumber: userMap['affiliateCode'],
             ));
 

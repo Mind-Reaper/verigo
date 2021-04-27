@@ -44,7 +44,7 @@ class User {
   final String verigoNumber;
 
   @HiveField(13)
-  final double walletBalance;
+  final int walletBalance;
 
   User(
       {this.walletBalance, this.phoneNumber, this.verigoNumber, this.accessToken, this.userType, this.name, this.surname, this.emailAddress, this.isActive, this.fullname, this.lastLoginTime, this.creationTime, this.roleNames, this.id});

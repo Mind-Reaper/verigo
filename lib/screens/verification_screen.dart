@@ -12,11 +12,12 @@ import 'home_screen.dart';
 class VerificationScreen extends StatefulWidget {
   final String header;
   final String info;
+  final bool longCode;
   final ValueChanged<String> onSubmitted;
   final Function onResendCode;
 
   const VerificationScreen(
-      {Key key, this.header, this.info, this.onSubmitted, this.onResendCode})
+      {Key key, this.header, this.info, this.onSubmitted, this.onResendCode, this.longCode: false})
       : super(key: key);
 
   @override
@@ -60,15 +61,17 @@ class _VerificationScreenState extends State<VerificationScreen> {
               ),
             ),
             SizedBox(height: 20),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: PinPut(
-                  fieldsCount: 4,
-                  obscureText: "●",
+                keyboardType:  widget.longCode ? TextInputType.text : TextInputType.number,
+                  fieldsCount: widget.longCode ? 7 : 4,
+                  obscureText: widget.longCode ? null : "●",
                   textStyle: TextStyle(color: Colors.white, fontSize: 20),
                   // inputDecoration: fieldDecoration.copyWith(hintText: ''),
-                  eachFieldHeight: 50,
-                  eachFieldWidth: 50,
+                  eachFieldHeight: widget.longCode ? null : 50,
+                  eachFieldWidth: widget.longCode ? null : 50,
                   submittedFieldDecoration: _pinPutDecoration.copyWith(
                     borderRadius: BorderRadius.circular(20.0),
                     color: Theme.of(context).primaryColor,
@@ -93,7 +96,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   //   }
                   // },
                   ),
-            ),
+              ),
+
             SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

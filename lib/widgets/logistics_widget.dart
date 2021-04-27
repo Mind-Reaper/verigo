@@ -11,9 +11,10 @@ class LogisticWidget extends StatelessWidget {
   final int totalDeliveries;
   final String distance;
   final int index;
+  final bool cod;
 
 
-  const LogisticWidget({Key key, this.logName, this.price, this.rating, this.totalDeliveries, this.distance, this.index}) : super(key: key);
+  const LogisticWidget({Key key, this.logName, this.price, this.rating, this.totalDeliveries, this.distance, this.index, this.cod}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class LogisticWidget extends StatelessWidget {
 border: index == selectedLog,
           padding: false,
           child: Column(
-
+crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Align(
                 alignment: Alignment.topRight,
@@ -64,11 +65,14 @@ border: index == selectedLog,
                 padding: const EdgeInsets.symmetric(horizontal:16.0),
                 child: Wrap(
                   children: [
-                    Image(
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Image(
 
-                      image: AssetImage('assets/images/logo.png'),
-                      height: 45,
+                        image: AssetImage('assets/images/logo.png'),
+                        height: 45,
 
+                      ),
                     ),
                     SizedBox(width: 15,),
                     Column(
@@ -98,16 +102,17 @@ border: index == selectedLog,
                                 Container(
                                   height: 10,
                                   width: 80,
-                                  child: rating < 1 ? Text('None') :ListView.builder(
+                                  child: ListView.builder(
                                       scrollDirection: Axis.horizontal,
                                       physics: NeverScrollableScrollPhysics(),
-                                      itemCount: rating,
+itemCount: 5,
                                       itemBuilder: (context, index) {
+
                                         return Padding(
                                           padding: const EdgeInsets.only(right: 2),
                                           child: Icon(Icons.star,
                                             size: 10,
-                                            color: Colors.yellow[700],
+                                            color: index  < rating ? Colors.yellow[700]: Colors.grey,
                                           ),
                                         );
                                       }
@@ -120,8 +125,8 @@ border: index == selectedLog,
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Total Deliveries'),
-                                Text('$totalDeliveries')
+                                Text( 'COD'),
+                                Text("${cod? 'Yes': 'No'}")
                               ],
                             ),
                             SizedBox(width: 15),
@@ -129,7 +134,7 @@ border: index == selectedLog,
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Distance'),
+                                Text('Distance Away'),
                                 Text(distance)
                               ],
                             )

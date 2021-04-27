@@ -1,4 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:jiffy/jiffy.dart';
+import 'package:provider/provider.dart';
+import 'package:verigo/providers/notification_provider.dart';
 import 'package:verigo/widgets/appbar.dart';
 import 'package:verigo/widgets/notification_widget.dart' as notify;
 
@@ -11,9 +15,24 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
+  Future yourFuture;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    reloadPage();
+  }
+
+  Future<void> reloadPage() async {
+    var orderProvider = Provider.of<NotificationProvider>(context, listen: false);
+    orderProvider.getNotifications(context);
+    await Future.delayed(Duration(seconds: 8));
+  }
 
   @override
   Widget build(BuildContext context) {
+    var orderProvider = Provider.of<NotificationProvider>(context);
     return Hero(
         tag: 'notify',
         child: Scaffold(
@@ -26,52 +45,77 @@ class _NotificationScreenState extends State<NotificationScreen> {
             blackTitle: true,
             brightness: Brightness.light
           ),
-          body: ListView(children: [
-            notify.Notification(
-                time: '09:15',
-                date: '12 Jan',
-                title: 'Parcel Verification',
-                message:
-                    'Your parcel has been verified. Verification code is 4488548. '),
-            notify.Notification(
-                time: '09:15',
-                date: '12 Jan',
-                title: 'Parcel Verification',
-                message:
-                    'Your parcel has been verified. Verification code is 4488548. '),
-            notify.Notification(
-                time: '09:15',
-                date: '12 Jan',
-                title: 'Parcel Verification',
-                message:
-                    'Your parcel has been verified. Verification code is 4488548. '),
-            notify.Notification(
-                time: '09:15',
-                date: '12 Jan',
-                title: 'Parcel Verification',
-                message:
-                    'Your parcel has been verified. Verification code is 4488548. ')
-          ]),
+          body: RefreshIndicator(
+            onRefresh: reloadPage,
+            color: Theme.of(context).primaryColor,
+            child: Builder(
+              builder: (context) {
+                if(orderProvider.notifications.isEmpty) {
+                  return ListView(
+                    children: [
+                      SizedBox(height: 200,),
+                      Text('You have no notifications!\nDrag page down to reload.',
+                      textAlign: TextAlign.center,
+                      )
+                    ],
+                  );
+
+                }
+                return Scrollbar(
+                  child: ListView.builder(
+                    itemCount: orderProvider.notifications.length,
+                      itemBuilder: (context, index) {
+                      NotificationMessage message = orderProvider.notifications[index];
+                      return notify.Notification(
+id: message.id,
+                        message: message.message,
+                        title: message.subject,
+                        isRead: message.isRead,
+                        date: message.createdOn,
+
+                      );
+
+                      }),
+                );
+              },
+            ),
+          ),
         ));
   }
 }
 
-class NotificationDetail extends StatelessWidget {
+class NotificationDetail extends StatefulWidget {
   final String title;
   final String message;
   final String date;
-  final String time;
+  final String id;
 
   const NotificationDetail(
-      {Key key, this.title, this.message, this.date, this.time})
+      {Key key, this.title, this.message, this.date, this.id})
       : super(key: key);
+
+  @override
+  _NotificationDetailState createState() => _NotificationDetailState();
+}
+
+class _NotificationDetailState extends State<NotificationDetail> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    var notifyProvider = Provider.of<NotificationProvider>(context, listen: false);
+    notifyProvider.readMessage(context, widget.id);
+  }
+
   @override
   Widget build(BuildContext context) {
+    DateTime dateTime = DateTime.parse(widget.date);
     return Scaffold(
       backgroundColor: Colors.white,
         appBar: appBar(
           context,
-          title: title,
+          title: widget.title,
 
           centerTitle: false,
           blackTitle: true,
@@ -83,17 +127,17 @@ class NotificationDetail extends StatelessWidget {
             children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 Text(
-                  date,
+                  "${Jiffy(dateTime).format("MMMM d")}",
                   style: TextStyle(color: Theme.of(context).primaryColor),
                 ),
                 Text(
-                  time,
+                  "${Jiffy(dateTime).format("hh:mm a")}",
                   style: TextStyle(color: Theme.of(context).primaryColor),
                 )
               ]),
               SizedBox(height: 5),
               Text(
-                message,
+                widget.message,
                 style:
                     Theme.of(context).textTheme.headline3.copyWith(height: 1.2),
               )

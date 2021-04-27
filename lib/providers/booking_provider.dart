@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_paystack/flutter_paystack.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:verigo/providers/payment_provider.dart';
 import 'package:verigo/providers/user_provider.dart';
 import 'package:verigo/screens/get_estimate_screen.dart';
 
@@ -21,21 +24,17 @@ class BookingProvider with ChangeNotifier {
   double vat;
   double serviceFee;
 
-  int total;
+  double total;
   double pickupLatitude;
   double pickupLongitude;
   String pickupAddress;
   double dropoffLatitude;
   double dropoffLongitude;
   String dropoffAddress;
-  Map carrier = {
-    'icon': FontAwesomeIcons.bicycle,
-    'name': 'Bicycle',
-    'index': 1
-  };
+  Map carrier = {'icon': FontAwesomeIcons.bicycle, 'name': 'Bicycle', 'index': 1};
   String parcels;
   String parcelDescription;
-  double parcelWorth;
+  double parcelWorth = 0.00;
   double veriSure;
   String pickupTime;
   String pickupName;
@@ -43,7 +42,8 @@ class BookingProvider with ChangeNotifier {
   String dropoffName;
   String dropoffNumber;
   String couponId;
-  double couponValue;
+  double discount = 0.00;
+  int couponValue;
   bool isPercent = false;
   ServiceProvider serviceProvider;
   List<ServiceProvider> serviceProviders;
@@ -67,14 +67,9 @@ class BookingProvider with ChangeNotifier {
 
   changeOrderInfo({
     double parcelWorth,
-    String couponId,
-    double couponValue,
-    bool isPercent: false,
   }) {
-    this.parcelWorth = parcelWorth;
-    this.couponId = couponId;
-    this.couponValue = couponValue;
-    this.isPercent = isPercent;
+    this.parcelWorth = parcelWorth ?? 0.00;
+
     notifyListeners();
   }
 
@@ -130,6 +125,7 @@ class BookingProvider with ChangeNotifier {
     maximumEstimation = null;
     distance = null;
     pickupLatitude = null;
+    discount = 0.00;
     pickupLongitude = null;
     pickupAddress = null;
     dropoffLatitude = null;
@@ -158,22 +154,68 @@ class BookingProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  getEstimate(context) async {
-    print(carrier);
+  cancelBooking(context, String reason) async {
+    String accessToken = Provider.of<UserProvider>(context, listen: false).currentUser.accessToken;
+    print(accessToken);
 
-    String accessToken = Provider.of<UserProvider>(context, listen: false)
-        .currentUser
-        .accessToken;
+    try {
+      Response response = await dio.post('/api/services/app/Booking/CancelBooking',
+          options: Options(
+            headers: {'Authorization': 'Bearer $accessToken'},
+          ),
+          data: {"bookingId": bookingId, "reason": reason});
+      print(response.data);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+Future<bool> verifyPPC(context, String bookingId, String ppc) async {
+
+    EasyLoading.show(status: 'Verifying');
+  String accessToken = Provider.of<UserProvider>(context, listen: false).currentUser.accessToken;
+  print(accessToken);
+  try {
+    Response response = await dio.post('/api/services/app/Booking/VerifyPPC',
+        options: Options(
+          headers: {'Authorization': 'Bearer $accessToken'},
+        ),
+        data: {"bookingId": bookingId, "code": ppc}).timeout(Duration(seconds: 20));
+    print(response.data);
+    if(response.data['result']['isSuccess'] == true) {
+      EasyLoading.dismiss();
+      return true;
+    } else {
+      EasyLoading.showError('Incorrect Verification Code');
+      return false;
+    }
+
+
+  } on TimeoutException {
+    EasyLoading.showError('Timeout');
+    return false;
+  }
+  catch (e) {
+    print(e);
+    EasyLoading.showError('Failed');
+    return false;
+  }
+
+}
+
+  getEstimate(context) async {
+    print(carrier['index']);
+
+    String accessToken = Provider.of<UserProvider>(context, listen: false).currentUser.accessToken;
     print(accessToken);
 
     EasyLoading.show(status: 'Estimating...');
     try {
-      Response response =
-          await dio.post('/api/services/app/Booking/DeliveryEstimate',
-              options: Options(
-                headers: {'Authorization': 'Bearer $accessToken'},
-              ),
-              data: {
+      Response response = await dio.post('/api/services/app/Booking/DeliveryEstimate',
+          options: Options(
+            headers: {'Authorization': 'Bearer $accessToken'},
+          ),
+          data: {
             "pickup": {
               "address": pickupAddress,
               "latitude": pickupLatitude,
@@ -207,19 +249,16 @@ class BookingProvider with ChangeNotifier {
   Future<bool> getServiceProviders(context, {bool bg: false}) async {
     serviceProviders = null;
 
-    String accessToken = Provider.of<UserProvider>(context, listen: false)
-        .currentUser
-        .accessToken;
+    String accessToken = Provider.of<UserProvider>(context, listen: false).currentUser.accessToken;
     print(accessToken);
 
     if (!bg) EasyLoading.show();
     try {
-      Response response =
-          await dio.post('/api/services/app/Booking/ServiceProviders',
-              options: Options(
-                headers: {'Authorization': 'Bearer $accessToken'},
-              ),
-              data: {
+      Response response = await dio.post('/api/services/app/Booking/ServiceProviders',
+          options: Options(
+            headers: {'Authorization': 'Bearer $accessToken'},
+          ),
+          data: {
             "pickup": {
               "address": pickupAddress,
               "latitude": pickupLatitude,
@@ -257,13 +296,11 @@ class BookingProvider with ChangeNotifier {
 
   Future<bool> createNewOrder(BuildContext context) async {
     EasyLoading.show();
-    String accessToken = Provider.of<UserProvider>(context, listen: false)
-        .currentUser
-        .accessToken;
+    String accessToken = Provider.of<UserProvider>(context, listen: false).currentUser.accessToken;
     print(accessToken);
-
+    print(parcelWorth);
     try {
-      Response response = await dio.post('/api/services/app/Booking/CreateNew',
+      Response response = await dio.post('/api/services/app/Booking/NewBooking',
           options: Options(
             headers: {'Authorization': 'Bearer $accessToken'},
           ),
@@ -272,7 +309,7 @@ class BookingProvider with ChangeNotifier {
               "carrier": carrier['index'],
               "parcels": packages,
               "parcelDescription": parcelDescription,
-              "parcelWorth": parcelWorth,
+              "parcelWorth": parcelWorth.toInt(),
             },
             "pickupDetails": {
               "pickupTime": pickupTime,
@@ -293,7 +330,7 @@ class BookingProvider with ChangeNotifier {
               "partnerFee": serviceProvider.partnerFee,
             },
             "discount": {
-              "couponId": couponId ?? "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+              "couponId": couponId ?? "aee2c9b4-f2ab-4d6b-89b3-08d8ee4b9392",
               "value": couponValue ?? 0,
               "isPercent": isPercent
             }
@@ -304,6 +341,7 @@ class BookingProvider with ChangeNotifier {
       bookingReference = result['bookingReference'];
       customerId = result['customerId'];
       serviceFee = result['serviceFee'];
+      discount = result['discount'];
       vat = result['vat'];
       veriSure = result['veriSure'];
       total = result['total'];
@@ -319,13 +357,161 @@ class BookingProvider with ChangeNotifier {
       return false;
     }
   }
+
+  nullServiceProvider() {
+    serviceProvider = null;
+    notifyListeners();
+  }
+
+  nullCoupon() {
+    couponValue = null;
+    couponId = null;
+    isPercent = false;
+    notifyListeners();
+  }
+
+  validateCoupon(context, String code) async {
+    EasyLoading.show(status: 'Verifying Coupon');
+    String accessToken = Provider.of<UserProvider>(context, listen: false).currentUser.accessToken;
+    print(accessToken);
+    try {
+      Response response = await dio
+          .get(
+            '/api/services/app/Promotion/GetValidCoupon',
+            queryParameters: {"code": code},
+            options: Options(
+              headers: {'Authorization': 'Bearer $accessToken'},
+            ),
+          )
+          .timeout(Duration(seconds: 20));
+      print(response.data);
+      couponId = response.data['result']['data']['couponId'];
+      couponValue = response.data['result']['data']['value'];
+      isPercent = response.data['result']['data']['isPercent'];
+      notifyListeners();
+      EasyLoading.dismiss();
+    } on TimeoutException {
+      EasyLoading.showError('Timeout');
+    } catch (e) {
+      EasyLoading.showError("Coupon verification failed!");
+      print(e);
+    }
+  }
+
+  Future<bool> updateBooking(context, int paymentMethod ) async {
+    EasyLoading.show(status: 'Please wait');
+    String accessToken = Provider.of<UserProvider>(context, listen: false).currentUser.accessToken;
+    var payment = Provider.of<PaymentProvider>(context, listen: false);
+    print(accessToken);
+    try {
+      Response response =
+          await dio.put('/api/services/app/Payment/UpdateBooking',
+          options: Options(
+            headers: {'Authorization': 'Bearer $accessToken'},
+          ),
+          data: {
+            "payMethod": paymentMethod,
+            "bookingId": bookingId,
+          }
+      );
+
+      print(response.data);
+
+      if(response.data['result']['isSuccess'] == true) {
+        EasyLoading.dismiss();
+        return true;
+      } else {
+        EasyLoading.showError('Something went wrong');
+        return false;
+      }
+
+    } on TimeoutException {
+      EasyLoading.showError('Timeout');
+      return false;
+    }
+    catch (e) {
+      print(e);
+      EasyLoading.showError('Something went wrong');
+      return false;
+    }
+  }
+
+  Future<bool> updatePaymentPaystack(context, {int amount, String email}) async {
+    EasyLoading.show(status: 'Please wait');
+    String accessToken = Provider.of<UserProvider>(context, listen: false).currentUser.accessToken;
+    var payment = Provider.of<PaymentProvider>(context, listen: false);
+
+    try {
+      EasyLoading.dismiss();
+      CheckoutResponse paystackResponse = await payment.payStackPay(context, amount, email);
+      bool isSuccess = paystackResponse.status;
+
+      int paymentMethod;
+
+      if (isSuccess == true) {
+        EasyLoading.show(status: 'Please Wait...');
+        if (paystackResponse.method == CheckoutMethod.card) {
+          paymentMethod = 2;
+        } else if (paystackResponse.method == CheckoutMethod.bank) {
+          paymentMethod = 3;
+        }
+        try {
+          Response response = await dio.post('/api/services/app/Payment/PayWithPayStack',
+              options: Options(
+                headers: {'Authorization': 'Bearer $accessToken'},
+              ),
+              data: {
+                "type": 1,
+                "reference": bookingId,
+                "amount": amount,
+                "isSuccess": true,
+                "gatewayRef": paystackResponse.reference
+              }).timeout(Duration(seconds: 20));
+
+          print(response.data);
+
+          EasyLoading.dismiss();
+          if (response.data['result']['isSuccess']) {
+            String trackingId = response.data['result']['data']['trackingId'];
+            String pdc = response.data['result']['data']['pdc'];
+            payment.changeTrackingID(trackingId, pdc);
+            return true;
+          } else {
+            return false;
+          }
+        } on TimeoutException {
+          EasyLoading.showError(
+            'Something went wrong, if payment has been made, Contact our customer service',
+            duration: Duration(seconds: 5),
+            dismissOnTap: false,
+          );
+          return false;
+        } catch (e) {
+          print(e);
+          EasyLoading.showError(
+            'Something went wrong, if payment has been made, Contact our customer service',
+            duration: Duration(seconds: 5),
+            dismissOnTap: false,
+          );
+          return false;
+        }
+      } else {
+        EasyLoading.showError('Payment Failed');
+        return false;
+      }
+    } catch (e) {
+      print(e);
+      EasyLoading.showError('Payment failed');
+      return false;
+    }
+  }
 }
 
 class ServiceProvider {
   final String partnerId;
   final int agentId;
   final int partnerFee;
-  final int serviceFee;
+  final bool cod;
   final int vat;
   final int total;
   final String name;
@@ -346,9 +532,9 @@ class ServiceProvider {
       this.name,
       this.agentId,
       this.partnerFee,
-      this.serviceFee,
       this.vat,
       this.total,
+      this.cod,
       this.rating,
       this.distanceText,
       this.distance,
@@ -363,6 +549,7 @@ class ServiceProvider {
         distanceCovered: doc['distanceCovered'],
         deliveries: doc['deliveries'],
         logo: doc['logo'],
+        cod: doc['acceptPayOnDelivery'],
         distanceText: doc['distanceText'],
         phoneNumber: doc['phoneNumber'],
         distance: doc['distance'],

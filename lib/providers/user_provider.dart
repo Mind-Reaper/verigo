@@ -1,5 +1,10 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
 import 'package:verigo/models/user_model.dart';
 import 'package:verigo/providers/authentication_provider.dart';
 
@@ -36,7 +41,7 @@ class UserProvider with ChangeNotifier {
     String accessToken = box.get(0)?.accessToken;
     List roleNames = box.get(0)?.roleNames;
     String verigoNumber = box.get(0)?.verigoNumber;
-    double walletBalance = box.get(0)?.walletBalance;
+    int walletBalance = box.get(0)?.walletBalance;
 
 
   await  box.putAt(
@@ -82,14 +87,58 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // setAccessToken(token) {
-  //   accessToken = token;
-  //   notifyListeners();
-  // }
-  //
-  // setUser(Map userMap) {
-  //   8
-  //   accessToken = AuthenticationProvider().token;
-  //   notifyListeners();
-  // }
+  Future<bool> updateUserApi(context, {String name, String surname , String mobileNumber}) async {
+    EasyLoading.show(status: 'Updating');
+    var authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+    try{
+
+      // print(name + ' ' + currentUser.surname + ' ' + currentUser.phoneNumber );
+      Response response = await dio.post(
+       '/api/services/app/Account/ProfileUpdate',
+        options: Options(
+          headers: {'Authorization': 'Bearer ${currentUser.accessToken}'},
+        ),
+        data: {
+          "name": name ?? currentUser.name,
+          "surname": surname ?? currentUser.surname,
+          "phoneNumber": mobileNumber ?? currentUser.phoneNumber
+        }
+      ).timeout(Duration(seconds: 20));
+      print(response.data);
+      if(response.data['result']['isSuccess']) {
+        authProvider.getCurrentUser(context, accessToken: currentUser.accessToken).then((userMap) async {
+          if (userMap != null) {
+            await updateUser(User(
+              name: userMap['name'],
+              surname: userMap['surname'],
+              emailAddress: userMap['emailAddress'],
+              id: userMap['id'],
+              walletBalance: userMap['walletBalance'],
+              phoneNumber: userMap['phoneNumber'],
+              verigoNumber: userMap['affiliateCode'],
+            ));
+          }
+
+        });
+        EasyLoading.dismiss();
+        return true;
+      } else {
+        EasyLoading.showError("Something went wrong!");
+        return false;
+      }
+
+
+
+    }
+    on TimeoutException {
+      EasyLoading.showError('Timeout');
+      return false;
+    }
+
+    catch (e) {
+      print(e);
+    EasyLoading.showError('Profile Update Failed');
+    return false;
+    }
+  }
 }

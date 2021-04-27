@@ -12,9 +12,10 @@ import 'package:verigo/widgets/buttons.dart';
 class AfterPaymentScreen extends StatefulWidget {
   final bool paymentComplete;
   final String trackingId;
+  final bool cod;
 
 
-  const AfterPaymentScreen({Key key, this.paymentComplete, this.trackingId}) : super(key: key);
+  const AfterPaymentScreen({Key key, this.paymentComplete, this.trackingId, this.cod: false}) : super(key: key);
 
   @override
   _AfterPaymentScreenState createState() => _AfterPaymentScreenState();
@@ -83,7 +84,7 @@ class _AfterPaymentScreenState extends State<AfterPaymentScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 32),
                   child: Text(
                widget.paymentComplete ?     'You will hear from our customer service or service provider concerning your delivery request shortly.'
-                    :  "Your order has been submitted and you will get a notification as soon as your payment has been verified.\nPayment verification is usually done within 1-3hours.",
+                    : widget.cod ? "Your order has been submitted and pending pickup.\nYou will be asked to pay when it has been delivered" :  "Your order has been submitted and you will get a notification as soon as your payment has been verified.\nPayment verification is usually done within 1-3hours.",
                     style: TextStyle(
                       color: Color(0xff414141),
                       fontSize: 18,

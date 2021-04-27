@@ -31,7 +31,7 @@ class StateProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  int selectedLogistic = 0;
+  int selectedLogistic ;
   changeSelectedLogistic(int index) {
     selectedLogistic = index;
     notifyListeners();

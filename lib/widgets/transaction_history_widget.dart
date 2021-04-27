@@ -1,5 +1,6 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:jiffy/jiffy.dart';
 
 import 'my_container.dart';
 
@@ -7,24 +8,27 @@ enum AlertType { debit, credit }
 
 class TransactionHistory extends StatelessWidget {
   final String date;
-  final String time;
-  final String amount;
+
+  final double amount;
   final AlertType alertType;
   final String transId;
-  final String ref;
+
+  final String sender;
+  final String receiver;
 
   const TransactionHistory(
       {Key key,
       this.date,
-      this.time,
+
       this.amount,
       this.alertType,
       this.transId,
-      this.ref})
+       this.sender, this.receiver})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+   DateTime dateTime = DateTime.parse(date);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
       child: FloatingContainer(
@@ -34,12 +38,12 @@ class TransactionHistory extends StatelessWidget {
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Flexible(
                 child: Text(
-                  "$date  $time",
+                  "${Jiffy(dateTime).format("MMMM d, hh:mm a")}",
                   style: Theme.of(context).textTheme.bodyText1,
                 ),
               ),
               SizedBox(width: 20),
-              Text(amount,
+              Text('N${amount}0',
                   style: Theme.of(context).textTheme.headline3.copyWith(
                         color: alertType == AlertType.credit
                             ? Colors.green
@@ -55,11 +59,15 @@ class TransactionHistory extends StatelessWidget {
                 child: Container()),
             SizedBox(height: 8),
             Text(
-              "E-wallet trans-$transId",
+              "Trans ID: $transId",
               style: TextStyle(color: Color(0xff414141)),
+
+
             ),
-            SizedBox(height: 8),
-            Text(ref),
+            if(alertType == AlertType.credit )     SizedBox(height: 8),
+      if(alertType == AlertType.credit )     Text('From: $sender'),
+            if(alertType == AlertType.debit )   SizedBox(height: 8),
+            if(alertType == AlertType.debit )       Text('To: $receiver'),
           ],
         ),
       ),

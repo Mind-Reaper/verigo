@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:verigo/providers/google_map_provider.dart';
@@ -19,6 +20,19 @@ import '../constants.dart';
 enum StatusProgress { pending, progress, done }
 
 class TrackingScreen extends StatefulWidget {
+
+  final String trackingId;
+  final String orderStage;
+  final String orderPlacedDate;
+  final String dispatchedDate;
+  final String enrouteDate;
+  final String deliveredDate;
+  final String notes;
+
+  const TrackingScreen( this.trackingId,{Key key, this.orderStage,  this.notes, this.orderPlacedDate, this.dispatchedDate, this.enrouteDate, this.deliveredDate}) : super(key: key);
+
+
+
   @override
   _TrackingScreenState createState() => _TrackingScreenState();
 }
@@ -40,7 +54,10 @@ class _TrackingScreenState extends State<TrackingScreen> {
   StatusProgress pendingStatus = StatusProgress.done;
   StatusProgress enrouteStatus = StatusProgress.done;
   StatusProgress deliveredStatus = StatusProgress.done;
-
+String orderPlacedDate = "-- --";
+String dispatchedDate = "-- --";
+String enrouteDate = "-- --";
+String deliveredDate= "-- --";
 
 
 
@@ -76,7 +93,39 @@ class _TrackingScreenState extends State<TrackingScreen> {
   @override
   void initState() {
     super.initState();
+
+   if(widget.orderStage == 'ORDERPLACED') {
+     orderPlacedStatus = StatusProgress.done;
+     pendingStatus = StatusProgress.progress;
+     enrouteStatus = StatusProgress.pending;
+     deliveredStatus = StatusProgress.pending;
+   } else if(widget.orderStage == 'DISPATCHED') {
+     orderPlacedStatus = StatusProgress.done;
+     pendingStatus = StatusProgress.progress;
+     enrouteStatus = StatusProgress.pending;
+     deliveredStatus = StatusProgress.pending;
+   } else if(widget.orderStage == 'OUTFORDELIVERY') {
+     orderPlacedStatus = StatusProgress.done;
+     pendingStatus = StatusProgress.done;
+     enrouteStatus = StatusProgress.progress;
+     deliveredStatus = StatusProgress.pending;
+   } else if (widget.orderStage == 'DELIVERED') {
+     orderPlacedStatus = StatusProgress.done;
+     pendingStatus = StatusProgress.done;
+     enrouteStatus = StatusProgress.done;
+     deliveredStatus = StatusProgress.done;
+   }
+
+  if(widget.orderPlacedDate!= null) orderPlacedDate = "${ Jiffy(DateTime.parse(widget.orderPlacedDate)).format("EEEE dd-MM, ")}";
+    if(widget.dispatchedDate!= null) dispatchedDate = "${ Jiffy(DateTime.parse(widget.dispatchedDate)).format("EEEE dd-MM, ")}";
+    if(widget.enrouteDate!= null)  enrouteDate = "${ Jiffy(DateTime.parse(widget.enrouteDate)).format("EEEE dd-MM, ")}";
+    if(widget.deliveredDate!= null) deliveredDate = "${ Jiffy(DateTime.parse(widget.deliveredDate)).format("EEEE dd-MM, ")}";
+
+
     var map = Provider.of<GoogleMapProvider>(context, listen: false);
+
+
+
 
 location = Location();
 
@@ -137,7 +186,7 @@ location = Location();
       appBar: appBar(context,
           backgroundColor: Colors.transparent,
           brightness: Brightness.light,
-          title: 'Tracking ID-58398595',
+          title: 'Tracking ID-${widget.trackingId}',
           centerTitle: false,
           blackTitle: true),
       body: Column(
@@ -264,22 +313,22 @@ location = Location();
                   OrderStatus(
                     title: 'Order Placed',
                     statusProgress: orderPlacedStatus,
-                    date: 'Wednesday 13-01',
+                    date: orderPlacedStatus == StatusProgress.done ? orderPlacedDate : '-- --',
                   ),
                   OrderStatus(
-                    title: 'Pending Confirmation',
+                    title: 'Order Dispatched',
                     statusProgress: pendingStatus,
-                    date: 'Wednesday 13-01',
+                    date: pendingStatus == StatusProgress.done ? dispatchedDate : '-- --',
                   ),
                   OrderStatus(
                     title: 'Shipment Enroute',
                     statusProgress: enrouteStatus,
-                    date: 'Wednesday 13-01',
+                    date: enrouteStatus == StatusProgress.done ? enrouteDate : '-- --',
                   ),
                   OrderStatus(
                     title: 'Parcel Delivered',
                     statusProgress: deliveredStatus,
-                    date: 'Wednesday 13-01',
+                    date: deliveredStatus == StatusProgress.done ? deliveredDate : '-- --',
                     showDivider: false,
                   ),
                 ],

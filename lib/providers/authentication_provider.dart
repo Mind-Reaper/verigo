@@ -1,15 +1,18 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:verigo/models/user_model.dart';
 import 'package:verigo/providers/user_provider.dart';
+import 'dart:io' show Platform;
 
 final dio = Dio(
   BaseOptions(headers: {
     'clientid': 'F066DBF7-4E1B-493E-9FC3-08D8CAF60EB0',
     'clientsecret': 'VG-3a699aa1-095a-420e-b07b-d7f71f2a008b'
-  }, baseUrl: 'http://api.myverigo.com', contentType: "application/json"),
+  }, baseUrl: 'https://api.myverigo.com', contentType: "application/json"),
 );
 
 class AuthenticationProvider with ChangeNotifier {
@@ -25,14 +28,25 @@ class AuthenticationProvider with ChangeNotifier {
       String password,
       String referralCode}) async {
     EasyLoading.show(status: 'Creating Account');
+    int channel;
+    if(Platform.isAndroid) {
+      channel = 2;
+    } else if (Platform.isIOS) {
+      channel = 3;
+
+    }
+
+
+
     try {
       Response response =
-          await dio.post('/api/services/app/Account/User', data: {
+          await dio.post('/api/services/app/Account/NewUser', data: {
         'userType': 1,
         'name': name,
         'surname': surname,
         'phoneNumber': phoneNumber,
-        'email': email,
+        'emailAddress': email,
+            'channel': channel,
         'password': password,
         'referralCode': referralCode,
       });
@@ -82,6 +96,7 @@ class AuthenticationProvider with ChangeNotifier {
       this.token = token;
       print(this.token);
 
+
       return token;
     } catch (e) {
       print(e);
@@ -90,14 +105,14 @@ class AuthenticationProvider with ChangeNotifier {
     }
   }
 
-  Future<User> getUserInfo({int userId, accessToken}) async {
-    try {
-      Response response = await dio.get(
-        '/api/services/app/User/Get',
-        queryParameters: {'Id': userId},
-      );
-    } catch (e) {}
-  }
+  // Future<User> getUserInfo({int userId, accessToken}) async {
+  //   try {
+  //     Response response = await dio.get(
+  //       '/api/services/app/User/Get',
+  //       queryParameters: {'Id': userId},
+  //     );
+  //   } catch (e) {}
+  // }
 
   Future<Map> getCurrentUser(context, {String accessToken}) async {
 
@@ -106,7 +121,7 @@ class AuthenticationProvider with ChangeNotifier {
           '/api/services/app/Session/GetCurrentLoginInformations',
           options: Options(headers: {'Authorization': 'Bearer ${token ?? accessToken}'}));
       print(response.data);
-      print(accessToken);
+
 
       Map userMap = response.data['result']['user'];
 
@@ -119,4 +134,141 @@ class AuthenticationProvider with ChangeNotifier {
       return null;
     }
   }
+
+  Future<int> forgotPassword (context, String email) async {
+    EasyLoading.show(status: 'Please wait');
+    try {
+      Response response = await dio.post('/api/services/app/Account/ForgotPassword',
+
+          data: {
+            "emailAddress": email,
+          }
+      ).timeout(Duration(seconds: 20));
+
+      print(response.data);
+      if(response.data['result']['isSuccess']) {
+        EasyLoading.dismiss();
+        int id = response.data['result']['data']['userId'];
+        return id;
+
+      } else {
+        EasyLoading.showError('User does not exist!');
+        return null;
+      }
+
+    } on TimeoutException{
+      EasyLoading.showError('Timeout');
+      return null;
+    }
+    catch (e) {
+      print(e);
+      EasyLoading.showError('Something went wrong');
+      return null;
+    }
+  }
+
+  Future<bool> resetPassword(context, int userId, String password ) async {
+    EasyLoading.show(status: 'Please wait');
+    print(userId);
+    print(password);
+    try {
+      Response response = await dio.post('/api/services/app/Account/ResetPassword',
+
+          data: {
+            "userId": userId,
+            "newPassword": password,
+          }
+      ).timeout(Duration(seconds: 20));
+      print(response.data);
+
+      if(response.data['result']['isSuccess']) {
+        EasyLoading.dismiss();
+        return  true;
+      } else {
+        EasyLoading.showError('Something went wrong');
+        return false;
+      }
+
+
+    }
+    on TimeoutException {
+      EasyLoading.showError('Timeout');
+      return false;
+    } catch (e) {
+      print(e);
+      EasyLoading.showError('Something went wrong');
+      return false;
+    }
+
+  }
+
+  Future<bool> verifyCode(context, int userId, String code ) async {
+    EasyLoading.show(status: 'Please wait');
+    try {
+      Response response = await dio.post('/api/services/app/Account/VerifyCode',
+
+          data: {
+            "userId": userId,
+            "code": code,
+          }
+      ).timeout(Duration(seconds: 20));
+      print(response.data);
+      if(response.data['result']['isSuccess']) {
+        EasyLoading.dismiss();
+        return true;
+      } else {
+        EasyLoading.showError('Wrong Verification Code');
+        return false;
+      }
+
+    }
+    on TimeoutException {
+      EasyLoading.showError('Timeout');
+      return false;
+    } catch (e) {
+      print(e);
+      EasyLoading.showError('Something went wrong');
+      return false;
+    }
+
+  }
+
+  Future<bool> changePassword(context, {String accessToken, String currentPassword, String newPassword}) async {
+    EasyLoading.show(status: 'Please wait');
+    try {
+      Response response = await dio.post('/api/services/app/Account/ChangePassword',
+
+          options: Options(headers: {'Authorization': 'Bearer ${token ?? accessToken}'}),
+
+      data: {
+        "currentPassword": currentPassword,
+        "newPassword": newPassword,
+      }
+      ).timeout(Duration(seconds: 20));
+
+print(response.data);
+
+if(response.data['result']['isSuccess']) {
+  EasyLoading.dismiss();
+  return true;
+} else {
+  EasyLoading.showError('Wrong Current Password'
+  );
+  return false;
+}
+
+
+    } on TimeoutException{
+      EasyLoading.showError('Timeout'
+          );
+      return false;
+    }
+
+    catch (e) {
+      print(e);
+      EasyLoading.showError('Failed');
+      return false;
+    }
+  }
+
 }

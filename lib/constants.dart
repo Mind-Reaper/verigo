@@ -65,6 +65,53 @@ margin: EdgeInsets.symmetric(vertical: 70, horizontal: 50),
   });
 }
 
+showSnackBar(context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content:  Text(message, textAlign: TextAlign.center,),
+    duration: const Duration(seconds: 2),
+    backgroundColor: Colors.black87,
+    elevation: 0,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    margin: EdgeInsets.symmetric(vertical: 70, horizontal: 50),
+
+    behavior: SnackBarBehavior.floating,
+
+  ));
+}
+
+String formatPhoneNumber(String number) {
+  if(number.startsWith('0')) {
+  String no =  number.replaceFirst('0', '+234');
+
+  return no;
+
+  } else {
+    return number;
+  }
+}
+
+showSnackBarSuccess(context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content:  Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Icon(Icons.check_circle_rounded, color: Colors.white,),
+        SizedBox(width: 20,),
+        Flexible(child: Text(message, textAlign: TextAlign.center,)),
+      ],
+    ),
+    duration: const Duration(seconds: 5),
+    backgroundColor: Colors.green,
+    elevation: 5,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+
+    behavior: SnackBarBehavior.floating,
+
+  ));
+}
+
+
 List<String> states = [
   "Abia",
   "Adamawa",

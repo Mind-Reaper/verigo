@@ -1,3 +1,4 @@
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -97,9 +98,15 @@ class _MorePageState extends State<MorePage> {
           ),
           SizedBox(height: 10,),
           MoreOption(
-            title: 'Push Notifications',
-            icon: Icons.notifications_active_outlined,
-            onPressed: () {},
+            title: 'Verigo Plus',
+            icon: FontAwesomeIcons.searchPlus,
+            onPressed: () {
+              showOkAlertDialog(context: context,
+                  title: 'Coming Soon.',
+                  message: 'This service is not currently available.'
+
+              );
+            },
           ),
           MoreOption(
             title: 'Privacy Policy',
@@ -138,14 +145,22 @@ class _MorePageState extends State<MorePage> {
             child: RoundedButton(
               title: 'Logout',
               active: true,
-              onPressed: () {
-userProvider.logout();
-                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-                    builder: (context) => SplashScreen()
-                ),
-                        (Route<dynamic> route) => false
+              onPressed: () async {
+                var result = await showOkCancelAlertDialog(context: context,
+                  okLabel: 'Logout',
+                  title: 'Logout',
+                  message: 'Do you want to end your current session on this device?',
+
                 );
-                stateProvider.changePageIndex(0);
+                if(result.index == 0) {
+                  userProvider.logout();
+                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                      builder: (context) => SplashScreen()
+                  ),
+                          (Route<dynamic> route) => false
+                  );
+                  stateProvider.changePageIndex(0);
+                }
               },
 
             ),

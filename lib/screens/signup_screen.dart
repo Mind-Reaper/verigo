@@ -48,31 +48,20 @@ class _SignupScreenState extends State<SignupScreen> {
     // TODO: implement initState
     super.initState();
     firstname.addListener(() {
+
       setState(() {
-        if (firstname.text.trim().length < 3 ||
-            firstname.text.trim().length > 20) {
-          firstnameError = 'Name is too short or too long';
+        if (firstname.text.trim().split(' ').length < 2 || firstname.text.trim().split(' ').length > 2) {
+          firstnameError = 'Please input full name';
         } else {
           firstnameError = null;
         }
       });
       activateButton();
     });
-    lastname.addListener(() {
-      setState(() {
-        if (lastname.text.trim().length < 3 ||
-            lastname.text.trim().length > 20) {
-          lastnameError = 'Name is too short or too long';
-        } else {
-          lastnameError = null;
-        }
-      });
-      activateButton();
-    });
+
     email.addListener(() {
       setState(() {
-        if (!RegExp(
-                r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
             .hasMatch(email.text)) {
           emailError = 'Invalid email address';
         } else {
@@ -83,32 +72,27 @@ class _SignupScreenState extends State<SignupScreen> {
     });
     phoneNumber.addListener(() {
       setState(() {
-
-        if (phoneNumber.text.trim().replaceAll(' ', '').length < 14 ||
-            phoneNumber.text.trim().replaceAll(' ', '').length > 14) {
+        if (phoneNumber.text.trim().length < 11 || phoneNumber.text.trim().length > 11) {
           phoneError = 'Mobile number is too short or too long';
-        } else {
-          phoneError = null;
-        }
+        } else if (!phoneNumber.text.trim().startsWith('0')) {
+phoneError = 'Begin number with 0';
+        } else    {
+            phoneError = null;
+          }
+
       });
       activateButton();
     });
     password.addListener(() {
+      Pattern pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$';
       setState(() {
         if (password.text.trim().length < 8) {
           passwordError = 'Password is too short or too long';
-        } else {
-          passwordError = null;
+        }else if(!RegExp(pattern).hasMatch(password.text)) {
+          passwordError = 'Password must contain a lowercase, uppercase, and number';
         }
-      });
-      activateButton();
-    });
-    confirmPassword.addListener(() {
-      setState(() {
-        if (confirmPassword.text.trim() != password.text.trim()) {
-          confirmPasswordError = "Doesn't match above password";
-        } else {
-          confirmPasswordError = null;
+        else {
+          passwordError = null;
         }
       });
       activateButton();
@@ -119,11 +103,9 @@ class _SignupScreenState extends State<SignupScreen> {
 
   activateButton() {
     if (firstnameError == null &&
-        lastnameError == null &&
         emailError == null &&
         phoneError == null &&
-        passwordError == null &&
-        confirmPasswordError == null) {
+        passwordError == null) {
       setState(() {
         buttonActive = true;
       });
@@ -135,16 +117,15 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   signUp() async {
-    var authProvider =
-        Provider.of<AuthenticationProvider>(context, listen: false);
+    var authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
     var userProvider = Provider.of<UserProvider>(context, listen: false);
 
     await authProvider
         .createUserWithEmail(
-      name: firstname.text,
-      surname: lastname.text,
+      name: firstname.text.split(' ').first,
+      surname: firstname.text.split(' ').last,
       email: email.text,
-      phoneNumber: phoneNumber.text.replaceAll(' ', ''),
+      phoneNumber: formatPhoneNumber(phoneNumber.text),
       password: password.text,
     )
         .then((value) {
@@ -153,39 +134,31 @@ class _SignupScreenState extends State<SignupScreen> {
             context,
             VerificationScreen(
               header: 'Verification',
-              info:
-                  'Please verify the 4-digits code sent to your mobile number',
+              info: 'Please verify the 4-digits code sent to your mobile number',
               onSubmitted: (code) async {
                 if (code.length == 4) {
-                  await authProvider
-                      .verifyPhoneNumber(otp: code)
-                      .then((value) async {
+                  await authProvider.verifyPhoneNumber(otp: code).then((value) async {
                     if (value) {
-                      await authProvider
-                          .tokenAuth(email.text, password.text)
-                          .then((value) async {
+                      await authProvider.tokenAuth(email.text, password.text).then((value) async {
                         if (value.length > 5) {
                           EasyLoading.show(status: 'Signing in');
                           await userProvider.logout();
                           await userProvider.saveUser(User(accessToken: value));
-                          await authProvider
-                              .getCurrentUser(context)
-                              .then((userMap) async {
+                          await authProvider.getCurrentUser(context).then((userMap) async {
                             if (userMap != null) {
                               await userProvider.updateUser(User(
                                 name: userMap['name'],
                                 surname: userMap['surname'],
                                 emailAddress: userMap['emailAddress'],
                                 id: userMap['id'],
-                                walletBalance: userMap['wallatBalance'],
+                                walletBalance: userMap['walletBalance'],
+                                phoneNumber: userMap['phoneNumber'],
                                 verigoNumber: userMap['affiliateCode'],
                               ));
 
-
                               Navigator.pushAndRemoveUntil(
                                   context,
-                                  MaterialPageRoute(
-                                      builder: (context) => HomeScreen()),
+                                  MaterialPageRoute(builder: (context) => HomeScreen()),
                                   (Route<dynamic> route) => false);
                               EasyLoading.dismiss();
                             } else {
@@ -236,29 +209,21 @@ class _SignupScreenState extends State<SignupScreen> {
               TextField(
                 controller: firstname,
                 decoration: fieldDecoration.copyWith(
-                    errorText: firstnameError, hintText: 'Your first name'),
+                    errorText: firstnameError, hintText: 'Your first and last name'),
               ),
               SizedBox(height: 10),
               TextField(
-                controller: lastname,
+                controller: phoneNumber,
+               maxLength: 11,
+                keyboardType: TextInputType.phone,
                 decoration: fieldDecoration.copyWith(
-                    errorText: lastnameError, hintText: 'Your last name'),
+                    errorText: phoneError, hintText: "Mobile number e.g 08145356784"),
               ),
               SizedBox(height: 10),
               TextField(
                 controller: email,
                 keyboardType: TextInputType.emailAddress,
                 decoration: fieldDecoration.copyWith(errorText: emailError),
-              ),
-              SizedBox(height: 10),
-              TextField(
-                controller: phoneNumber,
-                inputFormatters: [PhoneInputFormatter()],
-                keyboardType: TextInputType.phone,
-                decoration: fieldDecoration.copyWith(
-                    errorText: phoneError,
-                    hintText:
-                        "Mobile number (start with country code e.g '234')"),
               ),
               SizedBox(height: 10),
               TextField(
@@ -288,20 +253,10 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               SizedBox(height: 10),
               TextField(
-                obscureText: obscureText,
-                controller: confirmPassword,
-                decoration: fieldDecoration.copyWith(
-                  errorText: confirmPasswordError,
-                  hintText: 'Confirm Password',
-                ),
-              ),
-              SizedBox(height: 10),
-              TextField(
                 onChanged: (value) {
                   setState(() {});
                 },
-                decoration: fieldDecoration.copyWith(
-                    hintText: 'Referral Code(Optional)'),
+                decoration: fieldDecoration.copyWith(hintText: 'Referral Code(Optional)'),
               ),
               SizedBox(height: 20),
               RoundedButton(
@@ -347,8 +302,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     padding: const EdgeInsets.all(10.0),
                     child: Container(
                       height: 30,
-                      child:
-                          Icon(FontAwesomeIcons.facebookF, color: Colors.blue),
+                      child: Icon(FontAwesomeIcons.facebookF, color: Colors.blue),
                     ),
                   ),
                 )
