@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:verigo/pages/order_page.dart';
 import 'package:verigo/providers/google_map_provider.dart';
+import 'package:verigo/providers/order_provider.dart';
 import 'package:verigo/providers/state_provider.dart';
 import 'package:verigo/providers/user_provider.dart';
 import 'package:verigo/screens/get_estimate_screen.dart';
@@ -20,9 +21,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool online = true;
+  PendingOrder order;
+
+
 
   buildHomePage() {
     var stateProvider = Provider.of<StateProvider>(context);
+    var orderProvider = Provider.of<OrderProvider>(context);
     var map = Provider.of<GoogleMapProvider>(context);
     return SingleChildScrollView(
       child: Padding(
@@ -34,6 +39,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Expanded(
                     child: TextField(
+                      textInputAction: TextInputAction.search,
                     onSubmitted: (reference) {
                       if(reference.isNotEmpty) {
                         map.trackBooking(context, reference).then((order) {
@@ -103,7 +109,7 @@ hintText: "Tracking number",
                     decoration: BoxDecoration(
                       color: Color(0xfff48043),
                       borderRadius: BorderRadius.circular(5),
-                      
+
                     )
                   )
                 ],
@@ -116,12 +122,12 @@ hintText: "Tracking number",
                 children: [
                   SizedBox(height: 30),
 
-                  OrderHistory(
-                    orderId: '12353843',
-                    timestamp: '12 Jan 2021',
-                    orderStatus: 'Delivery Confirmed',
-                    estimatedTime: '1 hr',
-                    distance: '10 km',
+              if(orderProvider.order != null)    OrderHistory(
+                    orderId: orderProvider.order.reference,
+                    timestamp: orderProvider.order.createdOn,
+                    orderStatus: orderProvider.order.status,
+                    verisure: orderProvider.order.veriSure,
+                    logistics: orderProvider.order.partner,
                   ),
                 ],
               ),
@@ -189,6 +195,15 @@ hintText: "Tracking number",
         ]),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    var orderProvider = Provider.of<OrderProvider>(context, listen: false);
+     orderProvider.getLastRequest(context);
+
   }
 
   @override

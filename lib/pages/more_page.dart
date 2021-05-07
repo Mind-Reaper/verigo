@@ -12,6 +12,7 @@ import 'package:verigo/screens/wallet_screen.dart';
 import 'package:verigo/widgets/appbar.dart';
 import 'package:verigo/widgets/buttons.dart';
 import 'package:verigo/widgets/my_container.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MorePage extends StatefulWidget {
   @override
@@ -19,6 +20,17 @@ class MorePage extends StatefulWidget {
 }
 
 class _MorePageState extends State<MorePage> {
+
+ openWebPage(String url) async {
+   if(await canLaunch(url)) {
+     await launch(url,
+webOnlyWindowName: 'Verigo',
+     );
+   } else {
+     showSnackBar(context, 'Cannot Open WebPage Now');
+   }
+ }
+
   @override
   Widget build(BuildContext context) {
     var stateProvider = Provider.of<StateProvider>(context);
@@ -99,7 +111,7 @@ class _MorePageState extends State<MorePage> {
           SizedBox(height: 10,),
           MoreOption(
             title: 'Verigo Plus',
-            icon: FontAwesomeIcons.searchPlus,
+
             onPressed: () {
               showOkAlertDialog(context: context,
                   title: 'Coming Soon.',
@@ -111,17 +123,23 @@ class _MorePageState extends State<MorePage> {
           MoreOption(
             title: 'Privacy Policy',
             icon: Icons.policy_outlined,
-            onPressed: () {},
+            onPressed: () {
+              openWebPage('https://myverigo.com/Privacy');
+            },
           ),
           MoreOption(
             title: 'Terms and Conditions',
             icon: FontAwesomeIcons.fileContract,
-            onPressed: () {},
+            onPressed: () {
+              openWebPage('https://myverigo.com/Terms');
+            },
           ),
           MoreOption(
             title: 'Frequently Asked Questions',
             icon: FontAwesomeIcons.questionCircle,
-            onPressed: () {},
+            onPressed: () {
+              openWebPage('https://myverigo.com/FAQ');
+            },
           ),
           MoreOption(
             title: 'Invite Friends',
@@ -133,7 +151,9 @@ class _MorePageState extends State<MorePage> {
           MoreOption(
             title: 'About Verigo',
             icon: FontAwesomeIcons.infoCircle,
-            onPressed: () {},
+            onPressed: () {
+              openWebPage('https://myverigo.com/About');
+            },
           ),
           MoreOption(
             title: 'Rate Our App',
@@ -193,11 +213,15 @@ class MoreOption extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
+                icon!=null   ?  Icon(
                       icon,
                       color: Theme.of(context).primaryColor,
                       size: 27,
-                    ),
+                    ) : ImageIcon(
+                  AssetImage('assets/images/logo.png'),
+                  color: Theme.of(context).primaryColor,
+                  size: 27,
+                ),
                     SizedBox(width: 20),
                     FittedBox(
                       child: Text(

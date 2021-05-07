@@ -51,7 +51,7 @@ height: 50,
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            'VERIME2021',
+                            'VERIGO LINK',
                             style: TextStyle(
                                 color: Theme.of(context).primaryColor,
                                 fontWeight: FontWeight.bold,
@@ -71,7 +71,7 @@ height: 50,
                       alignment: Alignment.centerRight,
                       child: GestureDetector(
                         onTap: () {
-                          copy(context, 'VERISURE');
+                          copy(context, 'https://myverigo.com/Referral/56356363');
                         },
                         child: Container(
 height: 50,
@@ -115,7 +115,7 @@ height: 50,
               title: 'Share',
               active: true,
               onPressed: () {
-                Share.share('VERIME2021', subject: 'Join Verigo with my referral code');
+                Share.share('https://myverigo.com/Referral/56356363', subject: 'Join Verigo with my referral code');
               },
             ),
           )

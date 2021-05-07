@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jiffy/jiffy.dart';
 
 import 'my_container.dart';
 
@@ -6,38 +7,40 @@ class OrderHistory extends StatelessWidget {
   final String orderId;
   final String timestamp;
   final String orderStatus;
-  final String estimatedTime;
-  final String distance;
+  final String logistics;
+  final bool verisure;
 
   const OrderHistory(
       {Key key,
       this.orderId,
       this.timestamp,
       this.orderStatus,
-      this.estimatedTime,
-      this.distance})
+      this.logistics,
+      this.verisure: false})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    DateTime dateTime = DateTime.parse(timestamp);
     return FloatingContainer(
         width: double.infinity,
         child: Column(
           children: [
             SizedBox(height: 25),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Flexible(
                   child: Text(
-                    'Order ID-$orderId',
+                    'Ref-$orderId',
                     style: Theme.of(context).textTheme.bodyText1,
                     // overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Flexible(
                   child: Text(
-                    timestamp,
+                    Jiffy(dateTime).format('MMMM d, hh:mm a'),
                     // style: Theme.of(context).textTheme.bodyText1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -70,24 +73,24 @@ class OrderHistory extends StatelessWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Estimated Time',
+                                Text('Logistics',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                         color: Color(0xff414141))),
                                 SizedBox(height: 3),
-                                Text(estimatedTime),
+                                Text(logistics),
                               ],
                             ),
                             SizedBox(width: 10),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Distance',
+                                Text('Verisure Premium',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                         color: Color(0xff414141))),
                                 SizedBox(height: 3),
-                                Text(distance),
+                                Text(verisure? 'Yes': 'No'),
                               ],
                             )
                           ])

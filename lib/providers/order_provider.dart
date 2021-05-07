@@ -13,6 +13,7 @@ class OrderProvider with ChangeNotifier {
   List<PendingOrder> pendingOrders = [];
   List<PendingOrder> transitOrders = [];
   List<PendingOrder> completedOrders = [];
+  PendingOrder order;
 
 
 
@@ -178,6 +179,32 @@ class OrderProvider with ChangeNotifier {
     }
   }
 
+
+   getLastRequest(context) async {
+    String accessToken = Provider.of<UserProvider>(context, listen: false)
+        .currentUser
+        .accessToken;
+
+    try {
+      Response response = await dio.get('/api/services/app/Booking/GetLastDeliveryRequests',
+          options: Options(
+            headers: {'Authorization': 'Bearer $accessToken'},
+          ),
+      );
+      print(response.data);
+      if(response.data['result']['isSuccess']) {
+        order = PendingOrder.fromDocument(response.data['result']['data']);
+        notifyListeners();
+      } else {
+
+      }
+
+    } catch (e) {
+      print(e);
+
+    }
+
+  }
 
 }
 

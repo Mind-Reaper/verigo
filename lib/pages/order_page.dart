@@ -47,11 +47,9 @@ class _OrderPageState extends State<OrderPage> {
                 Theme.of(context).primaryColor,
                 [
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 18, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
                     child: MediaQuery(
-                      data:
-                          MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                      data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
                       child: Text(
                         "Pending",
                         style: TextStyle(
@@ -66,11 +64,9 @@ class _OrderPageState extends State<OrderPage> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 18, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
                     child: MediaQuery(
-                      data:
-                          MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                      data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
                       child: Text(
                         "In Transit",
                         style: TextStyle(
@@ -85,11 +81,9 @@ class _OrderPageState extends State<OrderPage> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 18, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
                     child: MediaQuery(
-                      data:
-                          MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                      data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
                       child: Text(
                         "Completed",
                         style: TextStyle(
@@ -109,8 +103,7 @@ class _OrderPageState extends State<OrderPage> {
                   setState(() {
                     cupertinoTabBarIVValue = index;
                     pageController.animateToPage(index,
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.fastOutSlowIn);
+                        duration: Duration(milliseconds: 300), curve: Curves.fastOutSlowIn);
                   });
                 },
                 useShadow: false,
@@ -152,7 +145,7 @@ class Pending extends StatefulWidget {
 }
 
 class _PendingState extends State<Pending> {
-  String searchResult ='';
+  String searchResult = '';
   List<PendingOrder> searchedPending = [];
 
   @override
@@ -170,9 +163,15 @@ class _PendingState extends State<Pending> {
   @override
   Widget build(BuildContext context) {
     var orderProvider = Provider.of<OrderProvider>(context);
-    if(searchResult.isNotEmpty) {
-    searchedPending = orderProvider.pendingOrders.where((e) =>
-          e.reference.contains(searchResult)).toList();
+    if (searchResult.isNotEmpty) {
+      searchedPending = orderProvider.pendingOrders.where((e) {
+        var res = e.reference.toUpperCase().contains(searchResult) | e.amount.toString().contains(searchResult)
+        | e.partner.toUpperCase().contains(searchResult) | e.ppc.toUpperCase().contains(searchResult)
+        ;
+        return res;
+
+
+      }).toList();
     } else {
       searchedPending = orderProvider.pendingOrders;
     }
@@ -184,6 +183,7 @@ class _PendingState extends State<Pending> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
+                textInputAction: TextInputAction.search,
                 onChanged: (value) {
                   setState(() {
                     searchResult = value.toUpperCase();
@@ -192,67 +192,63 @@ class _PendingState extends State<Pending> {
                 autocorrect: false,
                 decoration: fieldDecoration.copyWith(
                     fillColor: Colors.white,
-                    hintText: 'Input Reference Number',
+                    hintText: 'Reference, Logistics, Amount, PPC ',
                     prefixIcon: Icon(
                       Icons.search,
                       color: Color(0xffF48043),
                     ))),
           ),
           Expanded(
-            child: Builder(
+            child: Builder(builder: (context) {
+              if (orderProvider.pendingOrders.isEmpty) {
+                return ListView(
+                  children: [
+                    SizedBox(height: 200),
+                    Center(
+                      child: Text(
+                        "You don't have any pending order.\nDrag down to reload",
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                );
+              }
+              if (searchedPending.isEmpty) {
+                return ListView(
+                  children: [
+                    SizedBox(height: 200),
+                    Center(
+                      child: Text(
+                        "No results",
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return ListView.builder(
+                itemCount: searchedPending.length,
+                itemBuilder: (context, index) {
+                  PendingOrder order = searchedPending[index];
 
-                builder: (context) {
-                  if (orderProvider.pendingOrders.isEmpty) {
-                    return ListView(
-
-                      children: [
-                        SizedBox(height: 200),
-                        Center(
-                          child: Text(
-                            "You don't have any pending order.\nDrag down to reload",
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-                  if (searchedPending.isEmpty) {
-                    return ListView(
-
-                      children: [
-                        SizedBox(height: 200),
-                        Center(
-                          child: Text(
-                            "No results",
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-                  return ListView.builder(
-                    itemCount: searchedPending.length,
-                    itemBuilder: (context, index) {
-                      PendingOrder order = searchedPending[index];
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: PendingStackedOrder(
-                          bookingId: order.bookingId,
-                          reference: order.reference,
-                          parcel: order.parcel,
-                          partner: order.partner,
-                          pdc: order.pdc,
-                          ppc: order.ppc,
-                          amount: order.amount,
-                          veriSure: order.veriSure,
-                          createdOn: order.createdOn,
-                          status: order.status,
-                        ),
-                      );
-                    },
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: PendingStackedOrder(
+                      bookingId: order.bookingId,
+                      reference: order.reference,
+                      parcel: order.parcel,
+                      partner: order.partner,
+                      pdc: order.pdc,
+                      ppc: order.ppc,
+                      amount: order.amount,
+                      veriSure: order.veriSure,
+                      createdOn: order.createdOn,
+                      status: order.status,
+                    ),
                   );
-                }),
+                },
+              );
+            }),
           ),
         ],
       ),
@@ -266,8 +262,7 @@ class Transit extends StatefulWidget {
 }
 
 class _TransitState extends State<Transit> {
-
-  String searchResult  = '' ;
+  String searchResult = '';
   List<PendingOrder> searchedTransit = [];
 
   @override
@@ -278,20 +273,27 @@ class _TransitState extends State<Transit> {
   }
 
   Future<void> reloadPage() async {
-   Provider.of<OrderProvider>(context, listen: false).getTransit(context);
+    Provider.of<OrderProvider>(context, listen: false).getTransit(context);
 
     await Future.delayed(Duration(seconds: 8));
   }
+
   @override
   Widget build(BuildContext context) {
     var orderProvider = Provider.of<OrderProvider>(context);
-    if(searchResult.isNotEmpty) {
-      searchedTransit = orderProvider.transitOrders.where((e) =>
-          e.reference.contains(searchResult)).toList();
-    } else {
+    if (searchResult.isNotEmpty) {
+      searchedTransit = orderProvider.pendingOrders.where((e) {
+        var res = e.reference.toUpperCase().contains(searchResult) | e.amount.toString().contains(searchResult)
+        | e.partner.toUpperCase().contains(searchResult) | e.ppc.toUpperCase().contains(searchResult)
+        ;
+        return res;
+
+
+      }).toList();
+       } else {
       searchedTransit = orderProvider.transitOrders;
     }
-   return RefreshIndicator(
+    return RefreshIndicator(
       onRefresh: reloadPage,
       color: Theme.of(context).primaryColor,
       child: Column(
@@ -299,75 +301,74 @@ class _TransitState extends State<Transit> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
-              onChanged: (value) {
-                setState(() {
-                  searchResult = value.toUpperCase();
-                });
-              },
+                textInputAction: TextInputAction.search,
+                onChanged: (value) {
+                  setState(() {
+                    searchResult = value.toUpperCase();
+                  });
+                },
                 autocorrect: false,
                 decoration: fieldDecoration.copyWith(
                     fillColor: Colors.white,
-                    hintText: 'Input Reference Number',
+                    hintText: ' Reference, Logistics, Amount, PPC',
                     prefixIcon: Icon(
                       Icons.search,
                       color: Color(0xffF48043),
                     ))),
           ),
           Expanded(
-            child: Builder(
+            child: Builder(builder: (
+              context,
+            ) {
+              if (orderProvider.transitOrders.isEmpty) {
+                return ListView(
+                  children: [
+                    SizedBox(height: 200),
+                    Center(
+                      child: Text(
+                        "You don't have any order in transit.\nDrag down to reload",
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                );
+              }
+              if (searchedTransit.isEmpty) {
+                return ListView(
+                  children: [
+                    SizedBox(height: 200),
+                    Center(
+                      child: Text(
+                        "No results",
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return ListView.builder(
+                itemCount: searchedTransit.length,
+                itemBuilder: (context, index) {
+                  PendingOrder order = searchedTransit[index];
 
-                builder: (context, ) {
-                  if (orderProvider.transitOrders.isEmpty) {
-                    return ListView(
-
-                      children: [
-                        SizedBox(height: 200),
-                        Center(
-                          child: Text(
-                            "You don't have any order in transit.\nDrag down to reload",
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-                  if (searchedTransit.isEmpty) {
-                    return ListView(
-
-                      children: [
-                        SizedBox(height: 200),
-                        Center(
-                          child: Text(
-                            "No results",
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-                  return ListView.builder(
-                    itemCount: searchedTransit.length,
-                    itemBuilder: (context, index) {
-                      PendingOrder order = searchedTransit[index];
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: TransitStackedOrder(
-                          bookingId: order.bookingId,
-                          reference: order.reference,
-                          parcel: order.parcel,
-                          partner: order.partner,
-                          pdc: order.pdc,
-                          ppc: order.ppc,
-                          amount: order.amount,
-                          veriSure: order.veriSure,
-                          createdOn: order.createdOn,
-                          status: order.status,
-                        ),
-                      );
-                    },
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: TransitStackedOrder(
+                      bookingId: order.bookingId,
+                      reference: order.reference,
+                      parcel: order.parcel,
+                      partner: order.partner,
+                      pdc: order.pdc,
+                      ppc: order.ppc,
+                      amount: order.amount,
+                      veriSure: order.veriSure,
+                      createdOn: order.createdOn,
+                      status: order.status,
+                    ),
                   );
-                }),
+                },
+              );
+            }),
           ),
         ],
       ),
@@ -381,8 +382,6 @@ class Completed extends StatefulWidget {
 }
 
 class _CompletedState extends State<Completed> {
-
-
   @override
   void initState() {
     // TODO: implement initState
@@ -393,23 +392,28 @@ class _CompletedState extends State<Completed> {
   String searchResult = '';
   List<PendingOrder> searchedCompleted;
 
-
-
   Future<void> reloadPage() async {
-     Provider.of<OrderProvider>(context, listen: false).getCompleted(context);
+    Provider.of<OrderProvider>(context, listen: false).getCompleted(context);
     await Future.delayed(Duration(seconds: 8));
   }
+
   @override
   Widget build(BuildContext context) {
     var orderProvider = Provider.of<OrderProvider>(context);
-    if(searchResult.isNotEmpty) {
-      searchedCompleted = orderProvider.completedOrders.where((e) =>
-          e.reference.contains(searchResult)).toList();
-    } else {
+    if (searchResult.isNotEmpty) {
+      searchedCompleted = orderProvider.pendingOrders.where((e) {
+        var res = e.reference.toUpperCase().contains(searchResult) | e.amount.toString().contains(searchResult)
+        | e.partner.toUpperCase().contains(searchResult) | e.ppc.toUpperCase().contains(searchResult)
+        ;
+        return res;
+
+
+      }).toList();
+     } else {
       searchedCompleted = orderProvider.completedOrders;
     }
 
-   return RefreshIndicator(
+    return RefreshIndicator(
       onRefresh: reloadPage,
       color: Theme.of(context).primaryColor,
       child: Column(
@@ -417,85 +421,78 @@ class _CompletedState extends State<Completed> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
-              onChanged: (value) {
-                setState(() {
-                  searchResult = value.toUpperCase();
-                });
-              },
+              textInputAction: TextInputAction.search,
+                onChanged: (value) {
+                  setState(() {
+                    searchResult = value.toUpperCase();
+                  });
+                },
                 autocorrect: false,
                 decoration: fieldDecoration.copyWith(
                     fillColor: Colors.white,
-                    hintText: 'Input Reference Number',
+                    hintText: 'Reference, Logistics, Amount, PPC',
                     prefixIcon: Icon(
                       Icons.search,
                       color: Color(0xffF48043),
                     ))),
           ),
           Expanded(
-            child:
-               Builder(
+            child: Builder(builder: (context) {
+              if (orderProvider.completedOrders.isEmpty) {
+                return ListView(
+                  children: [
+                    SizedBox(height: 200),
+                    Center(
+                      child: Text(
+                        "You don't have any delivered order.\nDrag down to reload",
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                );
+              }
+              if (searchedCompleted.isEmpty) {
+                return ListView(
+                  children: [
+                    SizedBox(height: 200),
+                    Center(
+                      child: Text(
+                        "No results",
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return ListView.builder(
+                itemCount: searchedCompleted.length,
+                itemBuilder: (context, index) {
+                  PendingOrder order = searchedCompleted[index];
 
-                 builder: (context) {
-                   if (orderProvider.completedOrders.isEmpty) {
-                     return ListView(
-
-                       children: [
-                         SizedBox(height: 200),
-                         Center(
-                           child: Text(
-                             "You don't have any delivered order.\nDrag down to reload",
-                             textAlign: TextAlign.center,
-                           ),
-                         ),
-                       ],
-                     );
-                   }
-                   if (searchedCompleted.isEmpty) {
-                     return ListView(
-
-                       children: [
-                         SizedBox(height: 200),
-                         Center(
-                           child: Text(
-                             "No results",
-                             textAlign: TextAlign.center,
-                           ),
-                         ),
-                       ],
-                     );
-                   }
-                   return ListView.builder(
-                        itemCount: searchedCompleted.length,
-                        itemBuilder: (context, index) {
-                          PendingOrder order = searchedCompleted[index];
-
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10.0),
-                            child: TransitStackedOrder(
-                              bookingId: order.bookingId,
-                              reference: order.reference,
-                              parcel: order.parcel,
-                              partner: order.partner,
-                              pdc: order.pdc,
-                              ppc: order.ppc,
-                              amount: order.amount,
-                              veriSure: order.veriSure,
-                              createdOn: order.createdOn,
-                              status: order.status,
-                            ),
-                          );
-                        },
-                      );
-                 }
-               ),
-
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: TransitStackedOrder(
+                      bookingId: order.bookingId,
+                      reference: order.reference,
+                      parcel: order.parcel,
+                      partner: order.partner,
+                      pdc: order.pdc,
+                      ppc: order.ppc,
+                      amount: order.amount,
+                      veriSure: order.veriSure,
+                      createdOn: order.createdOn,
+                      status: order.status,
+                    ),
+                  );
+                },
+              );
+            }),
           ),
         ],
       ),
     );
   }
 }
-
 
 class KeepAlivePage extends StatefulWidget {
   KeepAlivePage({
@@ -509,8 +506,7 @@ class KeepAlivePage extends StatefulWidget {
   _KeepAlivePageState createState() => _KeepAlivePageState();
 }
 
-class _KeepAlivePageState extends State<KeepAlivePage>
-    with AutomaticKeepAliveClientMixin {
+class _KeepAlivePageState extends State<KeepAlivePage> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     /// Dont't forget this
